@@ -6,58 +6,138 @@
 <title>東大阪市消防局シミュレーター</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;overflow:hidden}
-#app{max-width:460px;height:100vh;margin:0 auto;background:#111;position:relative}
-header{height:96px;padding:10px 14px;background:linear-gradient(135deg,#700000,#e53935);display:flex;justify-content:space-between;align-items:center}
+html,body{
+  margin:0;
+  height:100%;
+  background:#050505;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  overflow:hidden;
+}
+#app{
+  max-width:460px;
+  height:100vh;
+  margin:0 auto;
+  background:#111;
+  position:relative;
+}
+header{
+  height:92px;
+  padding:10px 14px;
+  background:linear-gradient(135deg,#700000,#e53935);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 h1{font-size:20px;margin:0}
 #mission{font-size:13px;margin-top:5px;line-height:1.35}
-#emoji{font-size:44px}
-canvas{display:block;width:100%;height:calc(100vh - 220px);background:#87dfff;touch-action:none}
-#hud{height:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;background:#181818;font-size:12px}
-#hud div{background:#292929;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center}
-#controls{height:68px;background:#0f0f0f;display:flex;justify-content:center;align-items:center;gap:10px}
-button{width:88px;height:52px;border:0;border-radius:14px;font-size:18px;font-weight:700;background:#f2f2f2;color:#111;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
-#waterBtn{background:#4fc3f7}
-#sirenBtn{background:#ffd54f}
-#overlay{position:absolute;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px}
-.panel{background:#fff;color:#111;border-radius:22px;padding:22px;text-align:center;width:100%}
+#emoji{font-size:42px}
+canvas{
+  display:block;
+  width:100%;
+  height:calc(100vh - 228px);
+  background:#87dfff;
+  touch-action:none;
+}
+#hud{
+  height:56px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:4px;
+  padding:6px;
+  background:#181818;
+  font-size:12px;
+}
+#hud div{
+  background:#292929;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+#controls{
+  height:80px;
+  background:#0f0f0f;
+  display:grid;
+  grid-template-columns:1fr 1.6fr 1fr;
+  gap:8px;
+  padding:10px;
+}
+button{
+  height:60px;
+  border:0;
+  border-radius:16px;
+  font-size:22px;
+  font-weight:800;
+  background:#f2f2f2;
+  color:#111;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.25);
+}
+#waterBtn{
+  background:#1976d2;
+  color:#fff;
+  font-size:25px;
+}
+#overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.78);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.panel{
+  background:#fff;
+  color:#111;
+  border-radius:22px;
+  padding:22px;
+  text-align:center;
+  width:100%;
+}
 .panel h2{margin:0 0 12px;font-size:24px}
 .panel p{font-size:15px;line-height:1.55}
-.panel button{background:#e53935;color:white;width:100%;margin-top:12px}
+.panel button{
+  background:#e53935;
+  color:white;
+  width:100%;
+  margin-top:12px;
+}
 </style>
 </head>
+
 <body>
 <div id="app">
 <header>
-<div>
-<h1>東大阪市消防局シミュレーター</h1>
-<div id="mission">建物火災発生。放水して炎を消せ！</div>
-</div>
-<div id="emoji">🚒</div>
+  <div>
+    <h1>東大阪市消防局シミュレーター</h1>
+    <div id="mission">建物火災発生。放水して炎を消せ！</div>
+  </div>
+  <div id="emoji">🚒</div>
 </header>
 
 <canvas id="game"></canvas>
 
 <div id="hud">
-<div>任務<br><span id="phase">消火</span></div>
-<div>点数<br><span id="score">0</span></div>
-<div>残火<br><span id="fireCount">0</span></div>
-<div>水量<br><span id="waterCount">100</span></div>
+  <div>任務<br><span id="phase">消火</span></div>
+  <div>点数<br><span id="score">0</span></div>
+  <div>残火<br><span id="fireCount">0</span></div>
+  <div>水量<br><span id="waterCount">100</span></div>
 </div>
 
 <div id="controls">
-<button id="leftBtn">◀</button>
-<button id="sirenBtn">🚨</button>
-<button id="waterBtn">放水</button>
-<button id="rightBtn">▶</button>
+  <button id="leftBtn">◀</button>
+  <button id="waterBtn">放水</button>
+  <button id="rightBtn">▶</button>
 </div>
 
 <div id="overlay">
-<div class="panel">
-<h2>🚨 東大阪市消防局 出動指令</h2>
-<p>建物火災が発生。消防車を左右に動かし、放水ボタンで炎を消してください。</p>
-<button id="startBtn">出動する</button>
-</div>
+  <div class="panel">
+    <h2>🚨 東大阪市消防局 出動指令</h2>
+    <p>建物火災が発生。消防車を左右に動かし、中央の大きな「放水」ボタンで炎を消してください。</p>
+    <button id="startBtn">出動する</button>
+  </div>
 </div>
 </div>
 
@@ -74,16 +154,15 @@ const overlay=document.getElementById("overlay");
 
 let W,H;
 let running=false;
+let rescueMode=false;
 let score=0;
 let water=100;
 let tick=0;
-let siren=true;
 
-let truck={x:150,y:0,w:70,h:48};
+let truck={x:150,y:0,w:72,h:50};
 let fires=[];
 let drops=[];
 let victims=[];
-let rescueMode=false;
 
 function resize(){
   const r=canvas.getBoundingClientRect();
@@ -92,28 +171,14 @@ function resize(){
   ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
   W=r.width;
   H=r.height;
-  truck.y=H-68;
+  truck.y=H-70;
   truck.x=Math.max(4,Math.min(W-truck.w-4,truck.x));
 }
 window.addEventListener("resize",resize);
 resize();
 
-function rand(a,b){return Math.random()*(b-a)+a;}
-
-function setup(){
-  running=true;
-  score=0;
-  water=100;
-  rescueMode=false;
-  fires=[];
-  drops=[];
-  victims=[];
-  for(let i=0;i<12;i++){
-    fires.push({x:rand(38,W-38),y:rand(70,H*0.55),hp:2,size:rand(32,48)});
-  }
-  overlay.style.display="none";
-  mission.textContent="放水ボタンで炎を消せ！";
-  updateHud();
+function rand(a,b){
+  return Math.random()*(b-a)+a;
 }
 
 function updateHud(){
@@ -123,16 +188,38 @@ function updateHud(){
   waterCountEl.textContent=water;
 }
 
+function setup(){
+  running=true;
+  rescueMode=false;
+  score=0;
+  water=100;
+  fires=[];
+  drops=[];
+  victims=[];
+
+  for(let i=0;i<12;i++){
+    fires.push({
+      x:rand(40,W-40),
+      y:rand(70,H*0.55),
+      hp:2,
+      size:rand(32,48)
+    });
+  }
+
+  overlay.style.display="none";
+  mission.textContent="中央の放水ボタンで炎を消せ！";
+  updateHud();
+}
 document.getElementById("startBtn").onclick=setup;
 
 function move(dx){
   if(!running)return;
-  truck.x+=dx;
-  truck.x=Math.max(4,Math.min(W-truck.w-4,truck.x));
+  truck.x=Math.max(4,Math.min(W-truck.w-4,truck.x+dx));
 }
 
 function shootWater(){
   if(!running)return;
+
   if(rescueMode){
     for(const v of victims){
       if(!v.saved && Math.abs((truck.x+truck.w/2)-v.x)<70){
@@ -155,13 +242,13 @@ function shootWater(){
 
   water=Math.max(0,water-2);
 
-  // 1回押すごとに太めの放水を3発出す
-  for(let i=-1;i<=1;i++){
+  // 太い放水にするため5発同時に出す
+  for(let i=-2;i<=2;i++){
     drops.push({
-      x:truck.x+truck.w/2+i*10,
-      y:truck.y-8,
-      vx:i*0.35,
-      vy:-8.5,
+      x:truck.x+truck.w/2+i*8,
+      y:truck.y-10,
+      vx:i*0.25,
+      vy:-9,
       r:8
     });
   }
@@ -170,20 +257,18 @@ function shootWater(){
   updateHud();
 }
 
-function toggleSiren(){
-  siren=!siren;
-  mission.textContent=siren?"サイレンON！":"サイレンOFF";
-}
-
 function addControl(id,fn){
   const el=document.getElementById(id);
   el.addEventListener("click",fn);
-  el.addEventListener("touchstart",e=>{e.preventDefault();fn();},{passive:false});
+  el.addEventListener("touchstart",e=>{
+    e.preventDefault();
+    fn();
+  },{passive:false});
 }
-addControl("leftBtn",()=>move(-32));
-addControl("rightBtn",()=>move(32));
+
+addControl("leftBtn",()=>move(-34));
+addControl("rightBtn",()=>move(34));
 addControl("waterBtn",shootWater);
-addControl("sirenBtn",toggleSiren);
 
 canvas.addEventListener("touchmove",e=>{
   if(!running)return;
@@ -200,7 +285,7 @@ function startRescue(){
     {x:W*0.50,y:H*0.38,saved:false},
     {x:W*0.75,y:H*0.50,saved:false}
   ];
-  mission.textContent="火災鎮圧！要救助者の近くで『放水』ボタンを押して救助！";
+  mission.textContent="火災鎮圧！要救助者の近くで放水ボタンを押して救助！";
   updateHud();
 }
 
@@ -219,8 +304,10 @@ function drawScene(){
   // 建物
   ctx.fillStyle="#7b3f00";
   ctx.fillRect(W*0.08,H*0.13,W*0.84,H*0.35);
+
   ctx.fillStyle="#3e2723";
   ctx.fillRect(W*0.1,H*0.16,W*0.8,H*0.08);
+
   ctx.fillStyle="#222";
   ctx.fillRect(W*0.18,H*0.25,W*0.18,H*0.12);
   ctx.fillRect(W*0.64,H*0.25,W*0.18,H*0.12);
@@ -230,33 +317,35 @@ function drawScene(){
   ctx.fillStyle="#555";
   ctx.fillRect(0,H*0.58,W,H*0.42);
 
-  // 消防局名
+  // 表示
   ctx.fillStyle="#fff";
   ctx.font="16px sans-serif";
   ctx.fillText("東大阪市消防局",14,26);
 }
 
 function drawTruck(){
-  if(siren){
-    ctx.fillStyle=tick%24<12?"#ff1744":"#1e88e5";
-    ctx.fillRect(truck.x+26,truck.y-8,20,8);
-    ctx.globalAlpha=0.18;
-    ctx.beginPath();
-    ctx.arc(truck.x+truck.w/2,truck.y-8,42,0,Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha=1;
-  }
+  // 赤青灯
+  ctx.fillStyle=tick%24<12?"#ff1744":"#1e88e5";
+  ctx.fillRect(truck.x+26,truck.y-8,20,8);
 
   ctx.fillStyle="#d50000";
   ctx.fillRect(truck.x,truck.y,truck.w,truck.h);
+
   ctx.fillStyle="#fff";
   ctx.fillRect(truck.x+8,truck.y+9,20,14);
-  ctx.fillRect(truck.x+42,truck.y+9,18,14);
+  ctx.fillRect(truck.x+44,truck.y+9,18,14);
+
   ctx.fillStyle="#111";
-  ctx.beginPath();ctx.arc(truck.x+16,truck.y+47,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(truck.x+54,truck.y+47,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();
+  ctx.arc(truck.x+16,truck.y+49,8,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(truck.x+56,truck.y+49,8,0,Math.PI*2);
+  ctx.fill();
+
   ctx.font="24px serif";
-  ctx.fillText("🚒",truck.x+18,truck.y+34);
+  ctx.fillText("🚒",truck.x+19,truck.y+35);
 }
 
 function loop(){
@@ -269,33 +358,37 @@ function loop(){
 
   drawScene();
 
-  // 水
+  // 放水
   for(let i=drops.length-1;i>=0;i--){
     const d=drops[i];
     d.x+=d.vx;
     d.y+=d.vy;
+
+    ctx.strokeStyle="#81d4fa";
+    ctx.lineWidth=5;
+    ctx.beginPath();
+    ctx.moveTo(truck.x+truck.w/2,truck.y);
+    ctx.lineTo(d.x,d.y);
+    ctx.stroke();
 
     ctx.fillStyle="#03a9f4";
     ctx.beginPath();
     ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
     ctx.fill();
 
-    ctx.strokeStyle="#81d4fa";
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    ctx.moveTo(truck.x+truck.w/2,truck.y);
-    ctx.lineTo(d.x,d.y);
-    ctx.stroke();
-
-    if(d.y<-20)drops.splice(i,1);
+    if(d.y<-20){
+      drops.splice(i,1);
+    }
   }
 
   // 炎
   if(!rescueMode){
     for(let i=fires.length-1;i>=0;i--){
       const f=fires[i];
+
       ctx.font=f.size+"px serif";
       ctx.fillText("🔥",f.x-f.size/2,f.y);
+
       ctx.fillStyle="rgba(0,0,0,0.25)";
       ctx.beginPath();
       ctx.arc(f.x,f.y-28,f.size*0.65,0,Math.PI*2);
@@ -309,9 +402,11 @@ function loop(){
           drops.splice(j,1);
           f.hp--;
           score+=5;
+
           if(f.hp<=0){
             fires.splice(i,1);
           }
+
           updateHud();
           break;
         }
@@ -335,6 +430,7 @@ function loop(){
         ctx.fillText("救助済",v.x-12,v.y);
       }
     }
+
     ctx.font="30px serif";
     ctx.fillText("🚑",W-70,H-45);
   }
