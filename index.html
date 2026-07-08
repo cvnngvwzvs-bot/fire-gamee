@@ -1,276 +1,2342 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<title>東大阪市消防局シミュレーター</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;overflow:hidden}
-#app{height:100vh;width:100%;max-width:460px;margin:0 auto;background:#111;position:relative;overflow:hidden}
-header{height:86px;padding:10px 14px;background:linear-gradient(135deg,#700000,#e53935);display:flex;justify-content:space-between;align-items:center}
-h1{font-size:19px;margin:0}
-#mission{font-size:13px;margin-top:4px}
-#emoji{font-size:38px}
-canvas{display:block;width:100%;height:calc(100vh - 222px);background:#87dfff;touch-action:none}
-#hud{height:52px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;background:#181818;font-size:11px}
-#hud div{background:#292929;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center}
-#controls{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  bottom:calc(env(safe-area-inset-bottom) + 8px);
-  width:min(100%,460px);
-  height:74px;
-  background:#050505;
-  display:grid;
-  grid-template-columns:1fr 1.7fr 1fr;
-  gap:8px;
-  padding:8px 10px;
-  z-index:50;
-}
-button{height:58px;border:0;border-radius:16px;font-size:22px;font-weight:900;background:#f2f2f2;color:#111;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
-#waterBtn{background:#1976d2;color:#fff;font-size:26px}
-#overlay{position:absolute;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
-.panel{background:#fff;color:#111;border-radius:22px;padding:22px;text-align:center;width:100%}
-.panel h2{margin:0 0 12px;font-size:23px}
-.panel p{font-size:15px;line-height:1.55}
-.panel button{background:#e53935;color:white;width:100%;margin-top:12px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>予防救急クイズ | 東大阪市消防局</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #10243b;
+      --muted: #536171;
+      --paper: #ffffff;
+      --soft: #f5f8fb;
+      --line: #d7e0ea;
+      --red: #dc2537;
+      --red-deep: #a91425;
+      --blue: #075ea8;
+      --blue-deep: #033c70;
+      --yellow: #ffd23f;
+      --green: #12805c;
+      --wrong: #b42635;
+      --shadow: 0 22px 60px rgba(5, 25, 48, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 210, 63, 0.95) 0 7%, transparent 7% 14%),
+        linear-gradient(135deg, rgba(220, 37, 55, 0.94) 0 12%, transparent 12% 24%),
+        linear-gradient(90deg, rgba(7, 94, 168, 0.94), rgba(3, 60, 112, 0.96));
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255,255,255,0.09) 1px, transparent 1px),
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 12px, transparent 12px 24px);
+      background-size: 34px 34px, 34px 34px, auto;
+      mix-blend-mode: screen;
+    }
+
+    .app {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      color: #fff;
+      margin-bottom: 18px;
+    }
+
+    .dept {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      min-width: 0;
+    }
+
+    .badge119 {
+      display: inline-grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      border: 3px solid #fff;
+      border-radius: 8px;
+      background: var(--red);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+      font-size: 1.2rem;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      color: #fff;
+      text-align: center;
+      font-size: 2.4rem;
+      line-height: 1.12;
+      text-shadow: 0 3px 16px rgba(0,0,0,0.28);
+    }
+
+    .counter {
+      justify-self: end;
+      min-width: 172px;
+      padding: 9px 12px;
+      border: 2px solid rgba(255,255,255,0.78);
+      border-radius: 8px;
+      background: rgba(3, 42, 76, 0.62);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+      text-align: right;
+    }
+
+    .counter-label {
+      display: block;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.84);
+    }
+
+    .counter strong {
+      display: block;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 660px;
+      border: 3px solid rgba(255,255,255,0.86);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .mascot-side {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(231, 242, 253, 0.96)),
+        repeating-linear-gradient(135deg, rgba(220, 37, 55, 0.11) 0 14px, transparent 14px 28px);
+      border-right: 1px solid var(--line);
+    }
+
+    .mascot-card {
+      display: grid;
+      place-items: center;
+      min-height: 230px;
+    }
+
+    .mascot-card img {
+      width: min(156px, 90%);
+      height: auto;
+      image-rendering: auto;
+      border-radius: 8px;
+      filter: drop-shadow(0 16px 20px rgba(6, 37, 68, 0.20));
+    }
+
+    .side-stats {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.82);
+    }
+
+    .stat span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.18rem;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-width: 0;
+      background:
+        linear-gradient(180deg, #fff 0, #fff 64%, #f1f6fb 100%);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: #f7fbff;
+    }
+
+    .progress-wrap {
+      min-width: 0;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .progress {
+      height: 12px;
+      border-radius: 8px;
+      background: #dbe6f1;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--yellow));
+      transition: width 240ms ease;
+    }
+
+    .score-pill {
+      min-width: 112px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--blue-deep);
+      color: #fff;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .screen {
+      display: none;
+      min-height: 0;
+    }
+
+    .screen.active {
+      display: grid;
+    }
+
+    .start-screen {
+      align-content: center;
+      gap: 24px;
+      padding: 32px;
+    }
+
+    .start-copy {
+      display: grid;
+      gap: 12px;
+      max-width: 760px;
+    }
+
+    .kicker {
+      color: var(--red-deep);
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    .start-copy h2 {
+      margin: 0;
+      font-size: 2.05rem;
+      line-height: 1.25;
+    }
+
+    .start-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 720px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .mode-btn,
+    .action-btn,
+    .answer-btn {
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    }
+
+    .mode-btn {
+      min-height: 106px;
+      padding: 18px;
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(7, 94, 168, 0.24);
+      text-align: left;
+    }
+
+    .mode-btn:first-child {
+      background: var(--red);
+      box-shadow: 0 12px 26px rgba(220, 37, 55, 0.24);
+    }
+
+    .mode-btn:hover,
+    .action-btn:hover,
+    .answer-btn:not(:disabled):hover {
+      transform: translateY(-2px);
+    }
+
+    .mode-btn strong {
+      display: block;
+      font-size: 1.42rem;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn span {
+      display: block;
+      color: rgba(255,255,255,0.9);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .tools-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .small-btn {
+      min-height: 40px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .quiz-screen {
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      padding: 26px 28px 28px;
+    }
+
+    .question-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .category {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #eaf3fd;
+      color: var(--blue-deep);
+      font-weight: 900;
+    }
+
+    .question-no {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #fff4c7;
+      color: #694e00;
+      font-weight: 900;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: 1.78rem;
+      line-height: 1.38;
+      min-height: 4.9em;
+      display: flex;
+      align-items: center;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .answer-btn {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: center;
+      min-height: 86px;
+      padding: 14px;
+      border: 2px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 8px 18px rgba(7, 39, 71, 0.08);
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+    }
+
+    .answer-key {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: #e8eef5;
+      color: var(--blue-deep);
+      font-weight: 900;
+      font-size: 1.15rem;
+    }
+
+    .answer-text {
+      font-weight: 800;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-btn.correct {
+      border-color: var(--green);
+      background: #edf9f4;
+    }
+
+    .answer-btn.correct .answer-key {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .answer-btn.wrong {
+      border-color: var(--wrong);
+      background: #fff0f2;
+    }
+
+    .answer-btn.wrong .answer-key {
+      background: var(--wrong);
+      color: #fff;
+    }
+
+    .answer-btn.dim {
+      opacity: 0.68;
+    }
+
+    .result-band {
+      display: none;
+      grid-template-columns: 132px 1fr auto;
+      gap: 18px;
+      align-items: center;
+      min-height: 142px;
+      padding: 16px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: #f8fbff;
+    }
+
+    .result-band.show {
+      display: grid;
+    }
+
+    .illustration {
+      width: 132px;
+      height: 108px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #d9e5f0;
+      overflow: hidden;
+    }
+
+    .illustration svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .feedback {
+      min-width: 0;
+    }
+
+    .feedback h3 {
+      margin: 0 0 6px;
+      font-size: 1.32rem;
+    }
+
+    .feedback p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .action-btn {
+      min-width: 128px;
+      min-height: 48px;
+      padding: 12px 18px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 10px 22px rgba(220, 37, 55, 0.22);
+    }
+
+    .finish-screen {
+      align-content: center;
+      justify-items: center;
+      gap: 20px;
+      padding: 34px;
+      text-align: center;
+    }
+
+    .finish-mark {
+      display: grid;
+      place-items: center;
+      width: 142px;
+      height: 142px;
+      border-radius: 8px;
+      background: #fff4c7;
+      border: 3px solid var(--yellow);
+    }
+
+    .finish-mark svg {
+      width: 112px;
+      height: 112px;
+    }
+
+    .finish-screen h2 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+
+    .finish-screen p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.7;
+      max-width: 680px;
+    }
+
+    .result-score {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .result-score span {
+      padding: 10px 13px;
+      border-radius: 8px;
+      background: #eaf3fd;
+      color: var(--blue-deep);
+      font-weight: 900;
+    }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        width: min(100% - 22px, 720px);
+        padding-top: 14px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      h1 {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        text-align: left;
+        font-size: 2rem;
+      }
+
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .mascot-side {
+        display: grid;
+        grid-template-columns: 128px 1fr;
+        align-items: center;
+        padding: 14px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mascot-card {
+        min-height: auto;
+      }
+
+      .mascot-card img {
+        width: 96px;
+      }
+
+      .side-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .question-text {
+        font-size: 1.45rem;
+      }
+
+      .result-band {
+        grid-template-columns: 108px 1fr;
+      }
+
+      .result-band .action-btn {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+      }
+
+      .illustration {
+        width: 108px;
+        height: 94px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .counter {
+        justify-self: stretch;
+        text-align: left;
+      }
+
+      .dept {
+        font-size: 0.98rem;
+      }
+
+      h1 {
+        font-size: 1.72rem;
+      }
+
+      .status-row {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .score-pill {
+        justify-self: stretch;
+      }
+
+      .start-screen,
+      .quiz-screen,
+      .finish-screen {
+        padding: 18px;
+      }
+
+      .mode-grid,
+      .answer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .start-copy h2,
+      .finish-screen h2 {
+        font-size: 1.55rem;
+      }
+
+      .question-text {
+        font-size: 1.22rem;
+        min-height: auto;
+      }
+
+      .answer-btn {
+        min-height: 78px;
+      }
+
+      .mascot-side {
+        grid-template-columns: 94px 1fr;
+      }
+
+      .side-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .result-band {
+        grid-template-columns: 1fr;
+      }
+
+      .illustration {
+        width: 100%;
+        height: 116px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-<header>
-  <div>
-    <h1>東大阪市消防局シミュレーター</h1>
-    <div id="mission">建物火災発生。放水して炎を消せ！</div>
+  <div class="app">
+    <header class="topbar">
+      <div class="dept">
+        <span class="badge119">119</span>
+        <span>東大阪市消防局</span>
+      </div>
+      <h1>予防救急クイズ</h1>
+      <div class="counter" aria-live="polite">
+        <span class="counter-label">累計参加人数</span>
+        <strong><span id="participantCount">0</span>人</strong>
+      </div>
+    </header>
+
+    <main class="shell" aria-label="予防救急クイズゲーム">
+      <aside class="mascot-side">
+        <div class="mascot-card">
+          <img src="data:image/jpeg;base64,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" alt="トライ君">
+        </div>
+        <div class="side-stats">
+          <div class="stat">
+            <span>問題数</span>
+            <strong id="sideTotal">50問</strong>
+          </div>
+          <div class="stat">
+            <span>ただいまの正解</span>
+            <strong id="sideScore">0問</strong>
+          </div>
+        </div>
+      </aside>
+
+      <section class="main">
+        <div class="status-row">
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span id="progressText">スタート待ち</span>
+              <span id="modeText">全50問</span>
+            </div>
+            <div class="progress" aria-hidden="true">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+          <div class="score-pill" id="scorePill">0 / 0</div>
+        </div>
+
+        <section class="screen start-screen active" id="startScreen">
+          <div class="start-copy">
+            <div class="kicker">4択で学ぶ市民参加型講習</div>
+            <h2>事故や病気を防ぎ、早めに気づく力をゲームでチェック</h2>
+            <p>熱中症、ヒートショック、窒息・誤嚥、転倒・転落、119番通報まで、講習用の50問を収録しています。</p>
+          </div>
+          <div class="mode-grid">
+            <button class="mode-btn" type="button" data-mode="short">
+              <strong>10問チャレンジ</strong>
+              <span>短時間の講習やウォームアップに</span>
+            </button>
+            <button class="mode-btn" type="button" data-mode="all">
+              <strong>全50問</strong>
+              <span>項目別の内容をまとめて確認</span>
+            </button>
+          </div>
+          <div class="tools-row">
+            <button class="small-btn" type="button" id="resetParticipants">人数リセット</button>
+          </div>
+        </section>
+
+        <section class="screen quiz-screen" id="quizScreen">
+          <div class="question-head">
+            <span class="category" id="categoryLabel">予防救急の基本</span>
+            <span class="question-no" id="questionNumber">第1問</span>
+          </div>
+          <h2 class="question-text" id="questionText"></h2>
+          <div class="answer-grid" id="answerGrid"></div>
+          <div class="result-band" id="resultBand" aria-live="polite">
+            <div class="illustration" id="illustration"></div>
+            <div class="feedback">
+              <h3 id="feedbackTitle"></h3>
+              <p id="feedbackText"></p>
+            </div>
+            <button class="action-btn" type="button" id="nextButton">次へ</button>
+          </div>
+        </section>
+
+        <section class="screen finish-screen" id="finishScreen">
+          <div class="finish-mark" aria-hidden="true">
+            <svg viewBox="0 0 120 120" role="img">
+              <rect x="12" y="16" width="96" height="86" rx="8" fill="#ffffff" stroke="#075ea8" stroke-width="6"/>
+              <path d="M35 58 l17 17 34 -39" fill="none" stroke="#12805c" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M26 24 h68" stroke="#dc2537" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h2 id="finishTitle">結果</h2>
+          <div class="result-score">
+            <span id="finishScore">0 / 0</span>
+            <span id="finishRate">0%</span>
+            <span id="finishRank">予防救急チェック</span>
+          </div>
+          <p id="finishMessage"></p>
+          <div class="footer-actions">
+            <button class="action-btn" type="button" id="retrySame">もう一度</button>
+            <button class="small-btn" type="button" id="backHome">トップへ</button>
+          </div>
+        </section>
+      </section>
+    </main>
   </div>
-  <div id="emoji">🚒</div>
-</header>
 
-<canvas id="game"></canvas>
-
-<div id="hud">
-  <div>任務<br><span id="phase">消火</span></div>
-  <div>点数<br><span id="score">0</span></div>
-  <div>残火<br><span id="fireCount">0</span></div>
-  <div>水量<br><span id="waterCount">100</span></div>
-</div>
-
-<div id="controls">
-  <button id="leftBtn">◀</button>
-  <button id="waterBtn">放水</button>
-  <button id="rightBtn">▶</button>
-</div>
-
-<div id="overlay">
-  <div class="panel">
-    <h2>🚨 東大阪市消防局 出動指令</h2>
-    <p>建物火災が発生。消防車を左右に動かし、中央の「放水」ボタンで炎を消してください。</p>
-    <button id="startBtn">出動する</button>
-  </div>
-</div>
-</div>
-
-<script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const mission=document.getElementById("mission");
-const phaseEl=document.getElementById("phase");
-const scoreEl=document.getElementById("score");
-const fireCountEl=document.getElementById("fireCount");
-const waterCountEl=document.getElementById("waterCount");
-const overlay=document.getElementById("overlay");
-
-let W,H,running=false,rescueMode=false,score=0,water=100,tick=0;
-let truck={x:150,y:0,w:72,h:50};
-let fires=[],drops=[],victims=[],smokes=[];
-
-function resize(){
-  const r=canvas.getBoundingClientRect();
-  canvas.width=r.width*devicePixelRatio;
-  canvas.height=r.height*devicePixelRatio;
-  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  W=r.width; H=r.height;
-  truck.y=H-78;
-  truck.x=Math.max(4,Math.min(W-truck.w-4,truck.x));
-}
-window.addEventListener("resize",resize);
-resize();
-
-function rand(a,b){return Math.random()*(b-a)+a}
-
-function updateHud(){
-  phaseEl.textContent=rescueMode?"救助":"消火";
-  scoreEl.textContent=score;
-  fireCountEl.textContent=fires.length;
-  waterCountEl.textContent=water;
-}
-
-function setup(){
-  running=true;rescueMode=false;score=0;water=100;
-  fires=[];drops=[];victims=[];smokes=[];
-  for(let i=0;i<10;i++){
-    fires.push({x:rand(45,W-45),y:rand(55,H*0.48),hp:2,size:rand(30,44)});
-  }
-  overlay.style.display="none";
-  mission.textContent="放水ボタンで炎を消せ！";
-  updateHud();
-}
-document.getElementById("startBtn").onclick=setup;
-
-function move(dx){
-  if(!running)return;
-  truck.x=Math.max(4,Math.min(W-truck.w-4,truck.x+dx));
-}
-
-function shootWater(){
-  if(!running)return;
-
-  if(rescueMode){
-    for(const v of victims){
-      if(!v.saved && Math.abs((truck.x+truck.w/2)-v.x)<72){
-        v.saved=true;score+=30;mission.textContent="要救助者を救出！";
+  <script>
+window.QUIZ_QUESTIONS = [
+  {
+    "id": 1,
+    "category": "予防救急の基本",
+    "question": "予防救急とは、どのような取組ですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "救急車を早く到着させるための訓練"
+      },
+      {
+        "key": "B",
+        "text": "救急車が必要になる病気やけがを未然に防ぐ取組"
+      },
+      {
+        "key": "C",
+        "text": "病院で行う専門的な治療"
+      },
+      {
+        "key": "D",
+        "text": "救急隊だけが行う活動"
       }
-    }
-    if(victims.every(v=>v.saved))complete();
-    updateHud();
-    return;
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 2,
+    "category": "予防救急の基本",
+    "question": "予防救急の目的として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "救急車を絶対に呼ばないようにすること"
+      },
+      {
+        "key": "B",
+        "text": "病気やけがを防ぎ、自分や家族の命を守ること"
+      },
+      {
+        "key": "C",
+        "text": "症状があってもできるだけ我慢すること"
+      },
+      {
+        "key": "D",
+        "text": "病院に行く回数をなくすこと"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 3,
+    "category": "予防救急の基本",
+    "question": "予防救急の考え方として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "事故や病気が起きてから考えればよい"
+      },
+      {
+        "key": "B",
+        "text": "日ごろから事故や病気を防ぐ意識を持つ"
+      },
+      {
+        "key": "C",
+        "text": "高齢者だけが気をつければよい"
+      },
+      {
+        "key": "D",
+        "text": "応急手当ができれば予防は必要ない"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 4,
+    "category": "予防救急の基本",
+    "question": "予防救急の対象として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "高齢者だけ"
+      },
+      {
+        "key": "B",
+        "text": "子どもだけ"
+      },
+      {
+        "key": "C",
+        "text": "すべての市民"
+      },
+      {
+        "key": "D",
+        "text": "病気を持っている人だけ"
+      }
+    ],
+    "answer": "C"
+  },
+  {
+    "id": 5,
+    "category": "予防救急の基本",
+    "question": "家庭でできる予防救急として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "室温管理、転倒防止、水分補給を心がける"
+      },
+      {
+        "key": "B",
+        "text": "体調が悪くても様子を見続ける"
+      },
+      {
+        "key": "C",
+        "text": "家の中の危険な場所をそのままにする"
+      },
+      {
+        "key": "D",
+        "text": "食事や入浴は普段どおりで特に気にしない"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 6,
+    "category": "熱中症",
+    "question": "熱中症予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "のどが渇いてから水分をとる"
+      },
+      {
+        "key": "B",
+        "text": "暑くてもできるだけエアコンを使わない"
+      },
+      {
+        "key": "C",
+        "text": "のどが渇く前にこまめに水分をとる"
+      },
+      {
+        "key": "D",
+        "text": "汗をかいた日は水分を控える"
+      }
+    ],
+    "answer": "C"
+  },
+  {
+    "id": 7,
+    "category": "熱中症",
+    "question": "高齢者の熱中症で特に注意が必要な理由はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "暑さやのどの渇きを感じにくいことがあるため"
+      },
+      {
+        "key": "B",
+        "text": "若い人より必ず暑さに強いため"
+      },
+      {
+        "key": "C",
+        "text": "室内では熱中症にならないため"
+      },
+      {
+        "key": "D",
+        "text": "水分補給をしなくても大丈夫なため"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 8,
+    "category": "熱中症",
+    "question": "熱中症の危険サインとして注意が必要なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "めまい、頭痛、吐き気、強いだるさ"
+      },
+      {
+        "key": "B",
+        "text": "少し汗をかいているだけ"
+      },
+      {
+        "key": "C",
+        "text": "普段どおり会話ができる"
+      },
+      {
+        "key": "D",
+        "text": "軽くのどが渇いているだけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 9,
+    "category": "熱中症",
+    "question": "室内での熱中症予防として適切な行動はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "室温を確認し、必要に応じてエアコンを使う"
+      },
+      {
+        "key": "B",
+        "text": "暑さを感じても窓を閉め切る"
+      },
+      {
+        "key": "C",
+        "text": "夜だけ水分をとる"
+      },
+      {
+        "key": "D",
+        "text": "扇風機だけで必ず十分と考える"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 10,
+    "category": "熱中症",
+    "question": "暑い日に屋外作業をする場合、適切なのはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "休憩せず短時間で終わらせる"
+      },
+      {
+        "key": "B",
+        "text": "暑い時間帯を避け、こまめに休憩する"
+      },
+      {
+        "key": "C",
+        "text": "水分をとらずに作業する"
+      },
+      {
+        "key": "D",
+        "text": "体調不良でも予定どおり作業する"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 11,
+    "category": "熱中症",
+    "question": "熱中症を防ぐため、室内で大切なことはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "室温や湿度を確認する"
+      },
+      {
+        "key": "B",
+        "text": "暑さに慣れるため冷房を控える"
+      },
+      {
+        "key": "C",
+        "text": "水分補給は外出時だけにする"
+      },
+      {
+        "key": "D",
+        "text": "汗をかかないように動かない"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 12,
+    "category": "熱中症",
+    "question": "熱中症予防の声かけとして適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "「水分はとれていますか」"
+      },
+      {
+        "key": "B",
+        "text": "「暑さは我慢した方が体にいいですよ」"
+      },
+      {
+        "key": "C",
+        "text": "「少ししんどくても大丈夫です」"
+      },
+      {
+        "key": "D",
+        "text": "「冷房はなるべく使わない方がいいですよ」"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 13,
+    "category": "ヒートショック",
+    "question": "ヒートショックが起こりやすい場面はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "寒い脱衣所から急に熱い風呂に入るとき"
+      },
+      {
+        "key": "B",
+        "text": "暖かい部屋でゆっくり休んでいるとき"
+      },
+      {
+        "key": "C",
+        "text": "適温の部屋で水分補給をしているとき"
+      },
+      {
+        "key": "D",
+        "text": "ぬるめのお湯にゆっくり入るとき"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 14,
+    "category": "ヒートショック",
+    "question": "ヒートショック予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "脱衣所や浴室を暖める"
+      },
+      {
+        "key": "B",
+        "text": "いきなり熱い湯に入る"
+      },
+      {
+        "key": "C",
+        "text": "飲酒後すぐに入浴する"
+      },
+      {
+        "key": "D",
+        "text": "長時間熱い湯につかる"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 15,
+    "category": "ヒートショック",
+    "question": "入浴時の事故を防ぐために適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "家族に声をかけずに長時間入浴する"
+      },
+      {
+        "key": "B",
+        "text": "入浴前後に水分をとり、無理をしない"
+      },
+      {
+        "key": "C",
+        "text": "体調が悪くてもいつも通り入浴する"
+      },
+      {
+        "key": "D",
+        "text": "寒い脱衣所でも気にせず入浴する"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 16,
+    "category": "ヒートショック",
+    "question": "ヒートショックが危険な理由として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "急な温度変化で血圧が大きく変動することがあるため"
+      },
+      {
+        "key": "B",
+        "text": "体が冷えるだけで大きな危険はないため"
+      },
+      {
+        "key": "C",
+        "text": "入浴後に眠くなることがあるため"
+      },
+      {
+        "key": "D",
+        "text": "冬は誰でも血圧が安定するため"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 17,
+    "category": "ヒートショック",
+    "question": "高齢者の入浴時に家族ができる予防として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "入浴前に声をかけ、長時間入浴していないか確認する"
+      },
+      {
+        "key": "B",
+        "text": "一人で入浴している間はまったく気にしない"
+      },
+      {
+        "key": "C",
+        "text": "入浴時間が長くてもそのままにする"
+      },
+      {
+        "key": "D",
+        "text": "飲酒後でも普段どおり入浴をすすめる"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 18,
+    "category": "ヒートショック",
+    "question": "冬場の入浴前に行うとよいことはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "脱衣所を暖める"
+      },
+      {
+        "key": "B",
+        "text": "冷えた場所で長く服を脱いで待つ"
+      },
+      {
+        "key": "C",
+        "text": "熱い湯に急に入る"
+      },
+      {
+        "key": "D",
+        "text": "入浴前の水分を控える"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 19,
+    "category": "ヒートショック",
+    "question": "入浴時に避けた方がよい行動はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "飲酒後すぐに入浴する"
+      },
+      {
+        "key": "B",
+        "text": "家族に声をかけてから入浴する"
+      },
+      {
+        "key": "C",
+        "text": "脱衣所を暖める"
+      },
+      {
+        "key": "D",
+        "text": "体調を確認してから入浴する"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 20,
+    "category": "ヒートショック",
+    "question": "お風呂のお湯の入り方として適切なのはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "かけ湯をして、体を慣らしてから入る"
+      },
+      {
+        "key": "B",
+        "text": "体が冷えている状態で急に熱い湯に入る"
+      },
+      {
+        "key": "C",
+        "text": "苦しくなっても我慢して入り続ける"
+      },
+      {
+        "key": "D",
+        "text": "体調が悪いときも長めに入る"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 21,
+    "category": "窒息・誤嚥",
+    "question": "窒息予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "餅を大きいまま急いで食べる"
+      },
+      {
+        "key": "B",
+        "text": "食べ物を小さく切り、ゆっくり食べる"
+      },
+      {
+        "key": "C",
+        "text": "口に食べ物を入れたまま歩く"
+      },
+      {
+        "key": "D",
+        "text": "食事中に急いで飲み込む"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 22,
+    "category": "窒息・誤嚥",
+    "question": "窒息しやすい食品として注意が必要なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "餅、パン、肉、こんにゃくゼリー"
+      },
+      {
+        "key": "B",
+        "text": "味噌汁やお茶だけ"
+      },
+      {
+        "key": "C",
+        "text": "柔らかい豆腐だけ"
+      },
+      {
+        "key": "D",
+        "text": "水分を多く含む果物だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 23,
+    "category": "窒息・誤嚥",
+    "question": "乳幼児の窒息予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "小さなおもちゃを床に置いたままにする"
+      },
+      {
+        "key": "B",
+        "text": "電池や小物を手の届かない場所に置く"
+      },
+      {
+        "key": "C",
+        "text": "食事中に遊ばせながら食べさせる"
+      },
+      {
+        "key": "D",
+        "text": "口に入れている物を確認しない"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 24,
+    "category": "窒息・誤嚥",
+    "question": "高齢者の食事中の窒息・誤嚥予防として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "急いで食べてもらう"
+      },
+      {
+        "key": "B",
+        "text": "横になったまま食べる"
+      },
+      {
+        "key": "C",
+        "text": "姿勢を整え、ゆっくり食べる"
+      },
+      {
+        "key": "D",
+        "text": "一口の量を多くする"
+      }
+    ],
+    "answer": "C"
+  },
+  {
+    "id": 25,
+    "category": "窒息・誤嚥",
+    "question": "食事中に気をつけることとして正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "よく噛んで食べる"
+      },
+      {
+        "key": "B",
+        "text": "会話しながら急いで食べる"
+      },
+      {
+        "key": "C",
+        "text": "口いっぱいに食べ物を入れる"
+      },
+      {
+        "key": "D",
+        "text": "飲み込みにくくても無理に飲み込む"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 26,
+    "category": "窒息・誤嚥",
+    "question": "子どもの事故予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "小物、薬、電池などを手の届かない場所に置く"
+      },
+      {
+        "key": "B",
+        "text": "食事中も自由に走り回らせる"
+      },
+      {
+        "key": "C",
+        "text": "小さなおもちゃを口に入れても様子を見る"
+      },
+      {
+        "key": "D",
+        "text": "浴槽に一人で入らせる"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 27,
+    "category": "窒息・誤嚥",
+    "question": "誤嚥を防ぐために大切なことはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "食事の姿勢を整える"
+      },
+      {
+        "key": "B",
+        "text": "横になったまま食べる"
+      },
+      {
+        "key": "C",
+        "text": "急いで飲み込む"
+      },
+      {
+        "key": "D",
+        "text": "口いっぱいに食べ物を入れる"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 28,
+    "category": "転倒・転落",
+    "question": "転倒予防として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "廊下や階段に物を置かない"
+      },
+      {
+        "key": "B",
+        "text": "夜間は暗いまま移動する"
+      },
+      {
+        "key": "C",
+        "text": "風呂場が濡れていても気にしない"
+      },
+      {
+        "key": "D",
+        "text": "よく通る場所に物を置く"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 29,
+    "category": "転倒・転落",
+    "question": "夜間の転倒を防ぐ方法として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "足元灯をつける"
+      },
+      {
+        "key": "B",
+        "text": "急いで移動する"
+      },
+      {
+        "key": "C",
+        "text": "脱げやすいスリッパを使う"
+      },
+      {
+        "key": "D",
+        "text": "暗いまま慣れた感覚で歩く"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 30,
+    "category": "転倒・転落",
+    "question": "浴室での転倒予防として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "滑り止めマットを使う"
+      },
+      {
+        "key": "B",
+        "text": "濡れた床でも急いで歩く"
+      },
+      {
+        "key": "C",
+        "text": "手すりを使わずに立ち上がる"
+      },
+      {
+        "key": "D",
+        "text": "浴室の床を確認せずに入る"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 31,
+    "category": "転倒・転落",
+    "question": "高齢者の転倒が危険な理由として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "骨折や寝たきりにつながることがあるため"
+      },
+      {
+        "key": "B",
+        "text": "転んでも大きなけがにはなりにくいため"
+      },
+      {
+        "key": "C",
+        "text": "痛みがなければ必ず問題ないため"
+      },
+      {
+        "key": "D",
+        "text": "家の中の転倒は危険が少ないため"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 32,
+    "category": "転倒・転落",
+    "question": "家庭内で転倒しやすい場所はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "階段、廊下、浴室、寝室"
+      },
+      {
+        "key": "B",
+        "text": "食卓の上だけ"
+      },
+      {
+        "key": "C",
+        "text": "玄関の外だけ"
+      },
+      {
+        "key": "D",
+        "text": "車の中だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 33,
+    "category": "転倒・転落",
+    "question": "転倒を防ぐために、家の中で見直すとよいことはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "段差、コード、敷物、足元の明るさ"
+      },
+      {
+        "key": "B",
+        "text": "壁紙の色"
+      },
+      {
+        "key": "C",
+        "text": "カーテンの柄"
+      },
+      {
+        "key": "D",
+        "text": "食器の置き方だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 34,
+    "category": "転倒・転落",
+    "question": "ベッドや布団から立ち上がるときに適切なのはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "ゆっくり起き上がり、ふらつきがないか確認する"
+      },
+      {
+        "key": "B",
+        "text": "目が覚めたらすぐに立ち上がる"
+      },
+      {
+        "key": "C",
+        "text": "暗い中で急いで歩き出す"
+      },
+      {
+        "key": "D",
+        "text": "めまいがあってもそのまま歩く"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 35,
+    "category": "心筋梗塞・脳卒中",
+    "question": "心筋梗塞が疑われる症状として注意が必要なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "胸の強い痛み、締めつけ感、冷や汗"
+      },
+      {
+        "key": "B",
+        "text": "軽い疲れだけで、すぐに回復する状態"
+      },
+      {
+        "key": "C",
+        "text": "一時的な肩こりだけ"
+      },
+      {
+        "key": "D",
+        "text": "少し眠気があるだけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 36,
+    "category": "心筋梗塞・脳卒中",
+    "question": "脳卒中が疑われる症状として注意が必要なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "片側の手足が動かしにくい、ろれつが回らない"
+      },
+      {
+        "key": "B",
+        "text": "少し疲れているだけ"
+      },
+      {
+        "key": "C",
+        "text": "普段どおり歩ける"
+      },
+      {
+        "key": "D",
+        "text": "会話がはっきりできる"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 37,
+    "category": "心筋梗塞・脳卒中",
+    "question": "心筋梗塞や脳卒中が疑われる場合の対応として正しいものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "しばらく様子を見続ける"
+      },
+      {
+        "key": "B",
+        "text": "早めに119番通報を考える"
+      },
+      {
+        "key": "C",
+        "text": "入浴して体を温める"
+      },
+      {
+        "key": "D",
+        "text": "自分で車を運転して病院へ行く"
+      }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 38,
+    "category": "心筋梗塞・脳卒中",
+    "question": "脳卒中のサインに気づくポイントとして適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "顔のゆがみ、腕の動き、言葉の異常"
+      },
+      {
+        "key": "B",
+        "text": "食欲の有無だけ"
+      },
+      {
+        "key": "C",
+        "text": "睡眠時間の長さだけ"
+      },
+      {
+        "key": "D",
+        "text": "体温が平熱かどうかだけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 39,
+    "category": "心筋梗塞・脳卒中",
+    "question": "「様子を見すぎない」ことが大切な理由はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "重症化を防ぎ、早い治療につなげるため"
+      },
+      {
+        "key": "B",
+        "text": "症状が自然に治るまで待つため"
+      },
+      {
+        "key": "C",
+        "text": "家族に心配をかけないため"
+      },
+      {
+        "key": "D",
+        "text": "救急車を使わないようにするため"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 40,
+    "category": "心筋梗塞・脳卒中",
+    "question": "突然、片側の手足に力が入らず、言葉が出にくい場合、疑うべきものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "脳卒中"
+      },
+      {
+        "key": "B",
+        "text": "一時的な疲れだけ"
+      },
+      {
+        "key": "C",
+        "text": "軽い風邪"
+      },
+      {
+        "key": "D",
+        "text": "寝不足だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 41,
+    "category": "心筋梗塞・脳卒中",
+    "question": "胸痛や冷や汗がある人への対応として最も適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "重大な病気を疑い、早めに119番を考える"
+      },
+      {
+        "key": "B",
+        "text": "少し運動して様子を見る"
+      },
+      {
+        "key": "C",
+        "text": "熱い風呂に入ってもらう"
+      },
+      {
+        "key": "D",
+        "text": "一人で休ませておく"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 42,
+    "category": "心筋梗塞・脳卒中",
+    "question": "急な激しい頭痛や意識の異常がある場合、適切な対応はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "早めに119番通報を考える"
+      },
+      {
+        "key": "B",
+        "text": "何日か様子を見る"
+      },
+      {
+        "key": "C",
+        "text": "無理に歩かせる"
+      },
+      {
+        "key": "D",
+        "text": "入浴して様子を見る"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 43,
+    "category": "119番通報・相談",
+    "question": "救急車を呼ぶか迷ったときに活用できるものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "救急安心センターなどの相談窓口"
+      },
+      {
+        "key": "B",
+        "text": "近所の人の経験だけ"
+      },
+      {
+        "key": "C",
+        "text": "インターネットの情報だけ"
+      },
+      {
+        "key": "D",
+        "text": "しばらく我慢して判断する"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 44,
+    "category": "119番通報・相談",
+    "question": "119番通報で伝えるべき重要な情報はどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "場所、状況、傷病者の状態"
+      },
+      {
+        "key": "B",
+        "text": "家族構成のすべて"
+      },
+      {
+        "key": "C",
+        "text": "普段の生活習慣すべて"
+      },
+      {
+        "key": "D",
+        "text": "近所の建物の名前だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 45,
+    "category": "119番通報・相談",
+    "question": "救急隊が到着するまでに大切なことはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "状態を確認し、必要に応じて応急手当を行う"
+      },
+      {
+        "key": "B",
+        "text": "傷病者を一人にしてその場を離れる"
+      },
+      {
+        "key": "C",
+        "text": "電話を切った後は何もしない"
+      },
+      {
+        "key": "D",
+        "text": "周囲の人に知らせず一人で対応する"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 46,
+    "category": "まとめ",
+    "question": "家庭内で起こりやすい救急事故として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "転倒、窒息、熱中症、入浴中の事故"
+      },
+      {
+        "key": "B",
+        "text": "通勤中の事故だけ"
+      },
+      {
+        "key": "C",
+        "text": "屋外スポーツ中のけがだけ"
+      },
+      {
+        "key": "D",
+        "text": "交通事故だけ"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 47,
+    "category": "まとめ",
+    "question": "高齢者への声かけとして適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "「暑くないですか、水分はとれていますか」と確認する"
+      },
+      {
+        "key": "B",
+        "text": "体調については本人に任せて一切聞かない"
+      },
+      {
+        "key": "C",
+        "text": "入浴時間が長くても気にしない"
+      },
+      {
+        "key": "D",
+        "text": "ふらつきがあっても普段どおりにしてもらう"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 48,
+    "category": "まとめ",
+    "question": "救急講習で予防救急を学ぶ理由として適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "事故や病気を防ぎ、自分や家族の命を守るため"
+      },
+      {
+        "key": "B",
+        "text": "救急車を絶対に呼ばないようにするため"
+      },
+      {
+        "key": "C",
+        "text": "病院に行かないようにするため"
+      },
+      {
+        "key": "D",
+        "text": "専門的な医療判断を自分でするため"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 49,
+    "category": "まとめ",
+    "question": "「救急は119番してから始まるものではない」とは、どういう意味ですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "日ごろの予防から命を守る行動が始まっているという意味"
+      },
+      {
+        "key": "B",
+        "text": "119番通報は必要ないという意味"
+      },
+      {
+        "key": "C",
+        "text": "病院へ行く必要がないという意味"
+      },
+      {
+        "key": "D",
+        "text": "応急手当だけ知っていればよいという意味"
+      }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 50,
+    "category": "まとめ",
+    "question": "予防救急のまとめとして最も適切なものはどれですか。",
+    "options": [
+      {
+        "key": "A",
+        "text": "病気やけがを防ぎ、早く気づき、重症化を防ぐ取組"
+      },
+      {
+        "key": "B",
+        "text": "救急車を呼ばせないためだけの取組"
+      },
+      {
+        "key": "C",
+        "text": "消防署だけが行う訓練"
+      },
+      {
+        "key": "D",
+        "text": "専門職だけが知っていればよい知識"
+      }
+    ],
+    "answer": "A"
   }
+];
+  </script>
+  <script>
+    (() => {
+      const STORAGE_KEY = "higashiosaka_preventive_emergency_participants";
+      const questions = Array.isArray(window.QUIZ_QUESTIONS) ? window.QUIZ_QUESTIONS : [];
+      const el = {
+        participantCount: document.getElementById("participantCount"),
+        sideTotal: document.getElementById("sideTotal"),
+        sideScore: document.getElementById("sideScore"),
+        progressText: document.getElementById("progressText"),
+        modeText: document.getElementById("modeText"),
+        progressBar: document.getElementById("progressBar"),
+        scorePill: document.getElementById("scorePill"),
+        startScreen: document.getElementById("startScreen"),
+        quizScreen: document.getElementById("quizScreen"),
+        finishScreen: document.getElementById("finishScreen"),
+        categoryLabel: document.getElementById("categoryLabel"),
+        questionNumber: document.getElementById("questionNumber"),
+        questionText: document.getElementById("questionText"),
+        answerGrid: document.getElementById("answerGrid"),
+        resultBand: document.getElementById("resultBand"),
+        illustration: document.getElementById("illustration"),
+        feedbackTitle: document.getElementById("feedbackTitle"),
+        feedbackText: document.getElementById("feedbackText"),
+        nextButton: document.getElementById("nextButton"),
+        finishTitle: document.getElementById("finishTitle"),
+        finishScore: document.getElementById("finishScore"),
+        finishRate: document.getElementById("finishRate"),
+        finishRank: document.getElementById("finishRank"),
+        finishMessage: document.getElementById("finishMessage"),
+        retrySame: document.getElementById("retrySame"),
+        backHome: document.getElementById("backHome"),
+        resetParticipants: document.getElementById("resetParticipants")
+      };
 
-  if(water<=0){
-    mission.textContent="水量回復中！";
-    return;
-  }
+      let deck = [];
+      let index = 0;
+      let score = 0;
+      let currentMode = "all";
+      let answered = false;
 
-  water=Math.max(0,water-2);
-  for(let i=-2;i<=2;i++){
-    drops.push({x:truck.x+truck.w/2+i*8,y:truck.y-8,vx:i*0.25,vy:-9,r:8});
-  }
-  mission.textContent="放水中！";
-  updateHud();
-}
+      const tips = {
+        "予防救急の基本": "日ごろから危険を減らすことが、自分や家族の命を守る行動につながります。",
+        "熱中症": "水分、室温、休憩を早めに確認して、しんどくなる前に予防しましょう。",
+        "ヒートショック": "温度差を小さくし、入浴前後の水分と声かけで事故を防ぎましょう。",
+        "窒息・誤嚥": "小さく切る、姿勢を整える、口に入る物を片付けることが大切です。",
+        "転倒・転落": "明るさ、段差、敷物、コード、浴室のすべりを見直しましょう。",
+        "心筋梗塞・脳卒中": "突然の胸痛、冷や汗、ろれつ、片側の麻痺は早めの119番を考えます。",
+        "119番通報・相談": "迷った時の相談先を知り、通報では場所・状況・傷病者の状態を伝えます。",
+        "まとめ": "予防、早めの気づき、必要な相談や通報が重症化を防ぎます。"
+      };
 
-function addControl(id,fn){
-  const el=document.getElementById(id);
-  el.addEventListener("click",fn);
-  el.addEventListener("touchstart",e=>{e.preventDefault();fn();},{passive:false});
-}
-addControl("leftBtn",()=>move(-34));
-addControl("rightBtn",()=>move(34));
-addControl("waterBtn",shootWater);
-
-canvas.addEventListener("touchmove",e=>{
-  if(!running)return;
-  e.preventDefault();
-  const r=canvas.getBoundingClientRect();
-  const x=e.touches[0].clientX-r.left;
-  truck.x=Math.max(4,Math.min(W-truck.w-4,x-truck.w/2));
-},{passive:false});
-
-function startRescue(){
-  rescueMode=true;
-  victims=[
-    {x:W*0.22,y:H*0.42,saved:false},
-    {x:W*0.50,y:H*0.34,saved:false},
-    {x:W*0.75,y:H*0.44,saved:false}
-  ];
-  mission.textContent="救助フェーズ！近くで放水ボタンを押して救助";
-  updateHud();
-}
-
-function complete(){
-  running=false;
-  overlay.style.display="flex";
-  document.querySelector(".panel h2").textContent="🏆 任務完了";
-  document.querySelector(".panel p").textContent="東大阪市消防局、任務完了！ スコア："+score+"点";
-  document.querySelector(".panel button").textContent="再出動する";
-}
-
-function drawScene(){
-  ctx.fillStyle="#8fdfff";ctx.fillRect(0,0,W,H*0.55);
-
-  ctx.fillStyle="#8a4500";ctx.fillRect(W*0.08,H*0.11,W*0.84,H*0.30);
-  ctx.fillStyle="#3e2723";ctx.fillRect(W*0.1,H*0.14,W*0.8,H*0.08);
-  ctx.fillStyle="#222";
-  ctx.fillRect(W*0.18,H*0.23,W*0.18,H*0.10);
-  ctx.fillRect(W*0.64,H*0.23,W*0.18,H*0.10);
-  ctx.fillRect(W*0.43,H*0.31,W*0.14,H*0.10);
-
-  ctx.fillStyle="#555";ctx.fillRect(0,H*0.55,W,H*0.45);
-
-  ctx.fillStyle="#fff";
-  ctx.font="16px sans-serif";
-  ctx.fillText("東大阪市消防局",14,25);
-}
-
-function drawTruck(){
-  ctx.fillStyle=tick%24<12?"#ff1744":"#1e88e5";
-  ctx.fillRect(truck.x+26,truck.y-8,20,8);
-  ctx.fillStyle="#d50000";ctx.fillRect(truck.x,truck.y,truck.w,truck.h);
-  ctx.fillStyle="#fff";ctx.fillRect(truck.x+8,truck.y+9,20,14);ctx.fillRect(truck.x+44,truck.y+9,18,14);
-  ctx.fillStyle="#111";
-  ctx.beginPath();ctx.arc(truck.x+16,truck.y+49,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(truck.x+56,truck.y+49,8,0,Math.PI*2);ctx.fill();
-  ctx.font="24px serif";ctx.fillText("🚒",truck.x+19,truck.y+35);
-}
-
-function loop(){
-  tick++;
-  if(running && water<100 && tick%12===0){water++;updateHud()}
-
-  drawScene();
-
-  for(let i=smokes.length-1;i>=0;i--){
-    const s=smokes[i];s.a-=0.01;s.r+=0.5;
-    ctx.fillStyle="rgba(60,60,60,"+s.a+")";
-    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
-    if(s.a<=0)smokes.splice(i,1);
-  }
-
-  for(let i=drops.length-1;i>=0;i--){
-    const d=drops[i];d.x+=d.vx;d.y+=d.vy;
-    ctx.strokeStyle="#81d4fa";ctx.lineWidth=5;
-    ctx.beginPath();ctx.moveTo(truck.x+truck.w/2,truck.y);ctx.lineTo(d.x,d.y);ctx.stroke();
-    ctx.fillStyle="#03a9f4";ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();
-    if(d.y<-20)drops.splice(i,1);
-  }
-
-  if(!rescueMode){
-    for(let i=fires.length-1;i>=0;i--){
-      const f=fires[i];
-      ctx.font=f.size+"px serif";ctx.fillText("🔥",f.x-f.size/2,f.y);
-      ctx.fillStyle="rgba(0,0,0,0.25)";
-      ctx.beginPath();ctx.arc(f.x,f.y-25,f.size*0.65,0,Math.PI*2);ctx.fill();
-
-      for(let j=drops.length-1;j>=0;j--){
-        const d=drops[j],dx=f.x-d.x,dy=f.y-d.y;
-        if(Math.sqrt(dx*dx+dy*dy)<f.size){
-          drops.splice(j,1);f.hp--;score+=5;
-          if(f.hp<=0){
-            smokes.push({x:f.x,y:f.y-18,r:18,a:0.35});
-            fires.splice(i,1);
-          }
-          updateHud();break;
+      function readCount() {
+        try {
+          return Math.max(0, Number(localStorage.getItem(STORAGE_KEY)) || 0);
+        } catch (error) {
+          return 0;
         }
       }
-    }
-    if(fires.length===0 && running)startRescue();
-  }
 
-  if(rescueMode){
-    ctx.font="32px serif";
-    for(const v of victims){
-      if(!v.saved)ctx.fillText("🧍",v.x,v.y);
-      else{ctx.fillStyle="#fff";ctx.font="14px sans-serif";ctx.fillText("救助済",v.x-12,v.y)}
-    }
-    ctx.font="30px serif";ctx.fillText("🚑",W-70,H-48);
-  }
+      function writeCount(value) {
+        try {
+          localStorage.setItem(STORAGE_KEY, String(value));
+        } catch (error) {
+          // localStorageが使えない環境では画面上だけ更新します。
+        }
+        el.participantCount.textContent = String(value);
+      }
 
-  drawTruck();
-  requestAnimationFrame(loop);
-}
-loop();
-</script>
+      function incrementParticipants() {
+        const next = readCount() + 1;
+        writeCount(next);
+      }
+
+      function showScreen(screen) {
+        [el.startScreen, el.quizScreen, el.finishScreen].forEach((node) => {
+          node.classList.toggle("active", node === screen);
+        });
+      }
+
+      function shuffle(items) {
+        const copy = items.slice();
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function startGame(mode) {
+        currentMode = mode;
+        index = 0;
+        score = 0;
+        deck = mode === "short" ? shuffle(questions).slice(0, 10) : questions.slice();
+        incrementParticipants();
+        el.sideTotal.textContent = `${deck.length}問`;
+        el.sideScore.textContent = "0問";
+        el.modeText.textContent = mode === "short" ? "10問チャレンジ" : "全50問";
+        showScreen(el.quizScreen);
+        renderQuestion();
+      }
+
+      function currentQuestion() {
+        return deck[index];
+      }
+
+      function renderQuestion() {
+        const q = currentQuestion();
+        answered = false;
+        el.categoryLabel.textContent = q.category;
+        el.questionNumber.textContent = `第${index + 1}問`;
+        el.questionText.textContent = q.question;
+        el.resultBand.classList.remove("show");
+        el.answerGrid.innerHTML = "";
+        q.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.className = "answer-btn";
+          button.type = "button";
+          button.dataset.key = option.key;
+          button.innerHTML = `<span class="answer-key">${option.key}</span><span class="answer-text"></span>`;
+          button.querySelector(".answer-text").textContent = option.text;
+          button.addEventListener("click", () => chooseAnswer(option.key));
+          el.answerGrid.appendChild(button);
+        });
+        updateStatus();
+      }
+
+      function chooseAnswer(key) {
+        if (answered) return;
+        answered = true;
+        const q = currentQuestion();
+        const isCorrect = key === q.answer;
+        if (isCorrect) score += 1;
+
+        [...el.answerGrid.children].forEach((button) => {
+          const buttonKey = button.dataset.key;
+          button.disabled = true;
+          if (buttonKey === q.answer) button.classList.add("correct");
+          if (buttonKey === key && !isCorrect) button.classList.add("wrong");
+          if (buttonKey !== q.answer && buttonKey !== key) button.classList.add("dim");
+        });
+
+        const correct = q.options.find((option) => option.key === q.answer);
+        el.feedbackTitle.textContent = isCorrect ? "正解です" : "もう一歩です";
+        el.feedbackText.textContent = `正解は「${correct.key}. ${correct.text}」。${tips[q.category] || tips["まとめ"]}`;
+        el.illustration.innerHTML = illustrationFor(q.category);
+        el.nextButton.textContent = index + 1 >= deck.length ? "結果へ" : "次へ";
+        el.resultBand.classList.add("show");
+        updateStatus();
+      }
+
+      function updateStatus() {
+        const total = deck.length || 0;
+        const done = total ? Math.min(index + (answered ? 1 : 0), total) : 0;
+        const percent = total ? Math.round((done / total) * 100) : 0;
+        el.progressText.textContent = total ? `${done} / ${total}問` : "スタート待ち";
+        el.progressBar.style.width = `${percent}%`;
+        el.scorePill.textContent = `${score} / ${total}`;
+        el.sideScore.textContent = `${score}問`;
+      }
+
+      function next() {
+        if (!answered) return;
+        if (index + 1 >= deck.length) {
+          finishGame();
+          return;
+        }
+        index += 1;
+        renderQuestion();
+      }
+
+      function finishGame() {
+        const total = deck.length;
+        const rate = total ? Math.round((score / total) * 100) : 0;
+        let rank = "予防救急チェック";
+        let message = "大切なのは、迷った時に一人で抱え込まず、早めに相談や119番通報を考えることです。";
+        if (rate >= 90) {
+          rank = "予防救急マスター";
+          message = "日ごろの予防と早めの気づきがしっかり身についています。講習の声かけ役にもぴったりです。";
+        } else if (rate >= 70) {
+          rank = "安全チェック上手";
+          message = "大切なポイントをよく押さえています。家の中の危険な場所も一緒に見直してみましょう。";
+        } else if (rate >= 50) {
+          rank = "もう少しで安心";
+          message = "熱中症、入浴、転倒、窒息の予防をもう一度確認すると、日常で使える力になります。";
+        }
+        el.finishTitle.textContent = "チャレンジ終了";
+        el.finishScore.textContent = `${score} / ${total}`;
+        el.finishRate.textContent = `${rate}%`;
+        el.finishRank.textContent = rank;
+        el.finishMessage.textContent = message;
+        updateStatus();
+        showScreen(el.finishScreen);
+      }
+
+      function home() {
+        deck = [];
+        index = 0;
+        score = 0;
+        answered = false;
+        el.sideTotal.textContent = "50問";
+        el.sideScore.textContent = "0問";
+        el.progressText.textContent = "スタート待ち";
+        el.modeText.textContent = "全50問";
+        el.progressBar.style.width = "0%";
+        el.scorePill.textContent = "0 / 0";
+        showScreen(el.startScreen);
+      }
+
+      function illustrationFor(category) {
+        if (category === "熱中症") {
+          return svg(`
+            <rect width="132" height="108" fill="#fff6cf"/>
+            <circle cx="103" cy="25" r="16" fill="#ffd23f" stroke="#d39400" stroke-width="4"/>
+            <path d="M25 28 h24 a8 8 0 0 1 8 8 v46 a8 8 0 0 1 -8 8 h-24 a8 8 0 0 1 -8 -8 v-46 a8 8 0 0 1 8 -8z" fill="#bfe8ff" stroke="#075ea8" stroke-width="4"/>
+            <path d="M25 24 h24 v-9 h-24z" fill="#075ea8"/>
+            <path d="M24 58 h28" stroke="#075ea8" stroke-width="5"/>
+            <path d="M78 63 c10 -8 23 -8 33 0" fill="none" stroke="#dc2537" stroke-width="6" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "ヒートショック") {
+          return svg(`
+            <rect width="132" height="108" fill="#eef7ff"/>
+            <rect x="18" y="54" width="78" height="30" rx="8" fill="#ffffff" stroke="#075ea8" stroke-width="4"/>
+            <path d="M25 55 v-16 a12 12 0 0 1 24 0" fill="none" stroke="#075ea8" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="103" cy="33" r="15" fill="#dc2537"/>
+            <rect x="99" y="18" width="8" height="48" rx="4" fill="#dc2537"/>
+            <path d="M32 90 h56" stroke="#8cc9ef" stroke-width="7" stroke-linecap="round"/>
+            <path d="M64 26 c0 -10 10 -10 10 -20" fill="none" stroke="#dc2537" stroke-width="4" stroke-linecap="round"/>
+            <path d="M78 34 c0 -8 8 -8 8 -16" fill="none" stroke="#dc2537" stroke-width="4" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "窒息・誤嚥") {
+          return svg(`
+            <rect width="132" height="108" fill="#fff4f5"/>
+            <circle cx="38" cy="43" r="19" fill="#ffd9b2" stroke="#8b4b22" stroke-width="4"/>
+            <path d="M29 61 c4 11 15 11 19 0" fill="none" stroke="#8b4b22" stroke-width="4" stroke-linecap="round"/>
+            <path d="M78 28 h30 l-15 27z" fill="#ffd23f" stroke="#9a7300" stroke-width="4"/>
+            <path d="M93 37 v9" stroke="#10243b" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="93" cy="51" r="2.8" fill="#10243b"/>
+            <rect x="22" y="76" width="70" height="11" rx="5" fill="#12805c"/>
+            <path d="M53 37 h21" stroke="#dc2537" stroke-width="5" stroke-linecap="round"/>
+            <path d="M64 27 v21" stroke="#dc2537" stroke-width="5" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "転倒・転落") {
+          return svg(`
+            <rect width="132" height="108" fill="#f2fbf6"/>
+            <path d="M20 82 h82 v13 h-82z M38 64 h82 v13 h-82z M56 46 h56 v13 h-56z" fill="#d9e5f0" stroke="#075ea8" stroke-width="3"/>
+            <circle cx="35" cy="28" r="11" fill="#ffd9b2" stroke="#8b4b22" stroke-width="3"/>
+            <path d="M44 43 l23 11 15 -10" fill="none" stroke="#dc2537" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M62 55 l-13 20 M67 56 l6 22" fill="none" stroke="#10243b" stroke-width="6" stroke-linecap="round"/>
+            <path d="M101 22 l8 8 m0 -8 l-8 8" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "心筋梗塞・脳卒中") {
+          return svg(`
+            <rect width="132" height="108" fill="#f4f8ff"/>
+            <path d="M38 36 c0 -12 16 -18 27 -6 11 -12 27 -6 27 6 0 19 -27 36 -27 36s-27 -17 -27 -36z" fill="#dc2537"/>
+            <path d="M20 54 h24 l7 -15 12 36 8 -20 h18 l6 -11 8 20 h10" fill="none" stroke="#075ea8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="83" y="19" width="30" height="22" rx="4" fill="#ffffff" stroke="#075ea8" stroke-width="4"/>
+            <path d="M91 30 h14 M98 23 v14" stroke="#dc2537" stroke-width="4" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "119番通報・相談") {
+          return svg(`
+            <rect width="132" height="108" fill="#eef7ff"/>
+            <rect x="31" y="16" width="48" height="76" rx="8" fill="#ffffff" stroke="#075ea8" stroke-width="5"/>
+            <path d="M42 28 h26" stroke="#d9e5f0" stroke-width="4" stroke-linecap="round"/>
+            <path d="M43 50 h24 M43 62 h24" stroke="#dc2537" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="55" cy="80" r="4" fill="#075ea8"/>
+            <path d="M88 38 c10 6 14 15 13 26 M99 28 c15 10 21 25 20 43" fill="none" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>
+          `);
+        }
+        if (category === "まとめ") {
+          return svg(`
+            <rect width="132" height="108" fill="#fff8df"/>
+            <path d="M22 54 l44 -34 44 34 v39 h-88z" fill="#ffffff" stroke="#075ea8" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M52 92 v-28 h28 v28" fill="#eaf3fd" stroke="#075ea8" stroke-width="4"/>
+            <path d="M66 39 v24 M54 51 h24" stroke="#dc2537" stroke-width="7" stroke-linecap="round"/>
+            <path d="M20 86 h92" stroke="#12805c" stroke-width="5" stroke-linecap="round"/>
+          `);
+        }
+        return svg(`
+          <rect width="132" height="108" fill="#f4f8ff"/>
+          <path d="M66 18 l39 14 v25 c0 25 -17 39 -39 48 -22 -9 -39 -23 -39 -48 v-25z" fill="#ffffff" stroke="#075ea8" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M66 42 v29 M52 56 h28" stroke="#dc2537" stroke-width="8" stroke-linecap="round"/>
+          <path d="M34 81 c11 9 22 14 32 18 10 -4 21 -9 32 -18" fill="none" stroke="#12805c" stroke-width="5" stroke-linecap="round"/>
+        `);
+      }
+
+      function svg(content) {
+        return `<svg viewBox="0 0 132 108" aria-hidden="true" focusable="false">${content}</svg>`;
+      }
+
+      document.querySelectorAll(".mode-btn").forEach((button) => {
+        button.addEventListener("click", () => startGame(button.dataset.mode));
+      });
+      el.nextButton.addEventListener("click", next);
+      el.retrySame.addEventListener("click", () => startGame(currentMode));
+      el.backHome.addEventListener("click", home);
+      el.resetParticipants.addEventListener("click", () => {
+        if (window.confirm("累計参加人数を0人に戻しますか。")) writeCount(0);
+      });
+
+      writeCount(readCount());
+      el.sideTotal.textContent = `${questions.length || 50}問`;
+    })();
+  </script>
 </body>
 </html>
