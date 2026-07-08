@@ -533,6 +533,144 @@
       text-align: center;
     }
 
+    .certificate {
+      position: relative;
+      width: min(760px, 100%);
+      padding: 34px 40px 32px;
+      border: 8px solid #075ea8;
+      border-radius: 8px;
+      background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        linear-gradient(135deg, var(--red), var(--yellow), var(--blue)) border-box;
+      box-shadow: 0 20px 46px rgba(7, 39, 71, 0.16);
+      overflow: hidden;
+    }
+
+    .certificate::before,
+    .certificate::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border: 18px solid rgba(7, 94, 168, 0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .certificate::before {
+      top: -84px;
+      left: -70px;
+    }
+
+    .certificate::after {
+      right: -70px;
+      bottom: -84px;
+    }
+
+    .certificate-inner {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      padding: 22px;
+      border: 2px solid #d8b846;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(220, 37, 55, 0.08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(7, 94, 168, 0.07) 1px, transparent 1px),
+        rgba(255, 255, 255, 0.92);
+      background-size: 28px 28px;
+    }
+
+    .certificate-no {
+      justify-self: end;
+      padding: 7px 12px;
+      border: 1px solid #d8b846;
+      border-radius: 8px;
+      background: #fff8df;
+      color: #735600;
+      font-weight: 900;
+    }
+
+    .certificate-title {
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+    }
+
+    .certificate-title span {
+      color: var(--red-deep);
+      font-weight: 900;
+    }
+
+    .certificate-title h2 {
+      margin: 0;
+      font-size: 2.5rem;
+      line-height: 1.1;
+      color: var(--blue-deep);
+    }
+
+    .certificate-body {
+      margin: 0;
+      max-width: 560px;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 800;
+      line-height: 1.9;
+    }
+
+    .certificate-name {
+      width: min(420px, 100%);
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--ink);
+      font-size: 1.7rem;
+      font-weight: 900;
+    }
+
+    .certificate-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .certificate-meta span {
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: #eaf3fd;
+      color: var(--blue-deep);
+      font-weight: 900;
+    }
+
+    .certificate-footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+      width: 100%;
+      margin-top: 6px;
+      text-align: left;
+    }
+
+    .certificate-date {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .certificate-seal {
+      display: grid;
+      place-items: center;
+      width: 116px;
+      height: 116px;
+      border: 5px double var(--red);
+      border-radius: 50%;
+      color: var(--red-deep);
+      font-weight: 900;
+      line-height: 1.35;
+      text-align: center;
+      background: rgba(255, 244, 199, 0.82);
+    }
+
     .finish-mark {
       display: grid;
       place-items: center;
@@ -691,6 +829,24 @@
         font-size: 1.55rem;
       }
 
+      .certificate {
+        padding: 18px;
+      }
+
+      .certificate-inner {
+        padding: 16px;
+      }
+
+      .certificate-title h2 {
+        font-size: 1.9rem;
+      }
+
+      .certificate-footer {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+
       .question-text {
         font-size: 1.22rem;
         min-height: auto;
@@ -715,6 +871,58 @@
       .illustration {
         width: 100%;
         height: 116px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 12mm;
+      }
+
+      body {
+        background: #fff !important;
+      }
+
+      body::before,
+      .topbar,
+      .mascot-side,
+      .status-row,
+      .footer-actions,
+      .finish-mark,
+      #finishMessage {
+        display: none !important;
+      }
+
+      .app {
+        width: 100%;
+        padding: 0;
+      }
+
+      .shell,
+      .main,
+      .finish-screen {
+        display: block !important;
+        min-height: 0;
+        border: 0;
+        box-shadow: none;
+        background: #fff;
+      }
+
+      .screen {
+        display: none !important;
+      }
+
+      #finishScreen {
+        display: block !important;
+        padding: 0;
+      }
+
+      .certificate {
+        width: 100%;
+        min-height: 172mm;
+        box-shadow: none;
+        break-inside: avoid;
       }
     }
   </style>
@@ -780,9 +988,6 @@
               <span>項目別の内容をまとめて確認</span>
             </button>
           </div>
-          <div class="tools-row">
-            <button class="small-btn" type="button" id="resetParticipants">人数リセット</button>
-          </div>
         </section>
 
         <section class="screen quiz-screen" id="quizScreen">
@@ -810,14 +1015,31 @@
               <path d="M26 24 h68" stroke="#dc2537" stroke-width="8" stroke-linecap="round"/>
             </svg>
           </div>
-          <h2 id="finishTitle">結果</h2>
-          <div class="result-score">
-            <span id="finishScore">0 / 0</span>
-            <span id="finishRate">0%</span>
-            <span id="finishRank">予防救急チェック</span>
+          <div class="certificate" id="certificate">
+            <div class="certificate-inner">
+              <div class="certificate-no" id="certificateNumber">第0000号</div>
+              <div class="certificate-title">
+                <span>東大阪市消防局</span>
+                <h2 id="finishTitle">修了証</h2>
+              </div>
+              <div class="certificate-name">予防救急クイズ 修了者</div>
+              <p class="certificate-body" id="certificateBody">
+                予防救急に関する講習クイズを修了したことをここに証します。
+              </p>
+              <div class="certificate-meta">
+                <span id="finishScore">0 / 0</span>
+                <span id="finishRate">0%</span>
+                <span id="finishRank">予防救急チェック</span>
+              </div>
+              <div class="certificate-footer">
+                <div class="certificate-date" id="certificateDate"></div>
+                <div class="certificate-seal">東大阪市<br>消防局</div>
+              </div>
+            </div>
           </div>
           <p id="finishMessage"></p>
           <div class="footer-actions">
+            <button class="action-btn" type="button" id="printCertificate">印刷</button>
             <button class="action-btn" type="button" id="retrySame">もう一度</button>
             <button class="small-btn" type="button" id="backHome">トップへ</button>
           </div>
@@ -2032,7 +2254,8 @@ window.QUIZ_QUESTIONS = [
   </script>
   <script>
     (() => {
-      const STORAGE_KEY = "higashiosaka_preventive_emergency_participants";
+      const PARTICIPANT_STORAGE_KEY = "higashiosaka_preventive_emergency_participants";
+      const CERTIFICATE_STORAGE_KEY = "higashiosaka_preventive_emergency_certificates";
       const questions = Array.isArray(window.QUIZ_QUESTIONS) ? window.QUIZ_QUESTIONS : [];
       const el = {
         participantCount: document.getElementById("participantCount"),
@@ -2059,9 +2282,12 @@ window.QUIZ_QUESTIONS = [
         finishRate: document.getElementById("finishRate"),
         finishRank: document.getElementById("finishRank"),
         finishMessage: document.getElementById("finishMessage"),
+        certificateNumber: document.getElementById("certificateNumber"),
+        certificateBody: document.getElementById("certificateBody"),
+        certificateDate: document.getElementById("certificateDate"),
+        printCertificate: document.getElementById("printCertificate"),
         retrySame: document.getElementById("retrySame"),
-        backHome: document.getElementById("backHome"),
-        resetParticipants: document.getElementById("resetParticipants")
+        backHome: document.getElementById("backHome")
       };
 
       let deck = [];
@@ -2081,26 +2307,44 @@ window.QUIZ_QUESTIONS = [
         "まとめ": "予防、早めの気づき、必要な相談や通報が重症化を防ぎます。"
       };
 
-      function readCount() {
+      function readStoredCount(key) {
         try {
-          return Math.max(0, Number(localStorage.getItem(STORAGE_KEY)) || 0);
+          return Math.max(0, Number(localStorage.getItem(key)) || 0);
         } catch (error) {
           return 0;
         }
       }
 
-      function writeCount(value) {
+      function writeStoredCount(key, value) {
         try {
-          localStorage.setItem(STORAGE_KEY, String(value));
+          localStorage.setItem(key, String(value));
         } catch (error) {
           // localStorageが使えない環境では画面上だけ更新します。
         }
+      }
+
+      function writeParticipantCount(value) {
+        writeStoredCount(PARTICIPANT_STORAGE_KEY, value);
         el.participantCount.textContent = String(value);
       }
 
       function incrementParticipants() {
-        const next = readCount() + 1;
-        writeCount(next);
+        const next = readStoredCount(PARTICIPANT_STORAGE_KEY) + 1;
+        writeParticipantCount(next);
+      }
+
+      function issueCertificateNumber() {
+        const next = readStoredCount(CERTIFICATE_STORAGE_KEY) + 1;
+        writeStoredCount(CERTIFICATE_STORAGE_KEY, next);
+        return next;
+      }
+
+      function formatCertificateNumber(value) {
+        return `第${String(value).padStart(4, "0")}号`;
+      }
+
+      function formatDate(date) {
+        return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
       }
 
       function showScreen(screen) {
@@ -2203,6 +2447,8 @@ window.QUIZ_QUESTIONS = [
       function finishGame() {
         const total = deck.length;
         const rate = total ? Math.round((score / total) * 100) : 0;
+        const certificateNo = issueCertificateNumber();
+        const modeLabel = currentMode === "short" ? "10問チャレンジ" : "全50問";
         let rank = "予防救急チェック";
         let message = "大切なのは、迷った時に一人で抱え込まず、早めに相談や119番通報を考えることです。";
         if (rate >= 90) {
@@ -2215,9 +2461,12 @@ window.QUIZ_QUESTIONS = [
           rank = "もう少しで安心";
           message = "熱中症、入浴、転倒、窒息の予防をもう一度確認すると、日常で使える力になります。";
         }
-        el.finishTitle.textContent = "チャレンジ終了";
-        el.finishScore.textContent = `${score} / ${total}`;
-        el.finishRate.textContent = `${rate}%`;
+        el.finishTitle.textContent = "修了証";
+        el.certificateNumber.textContent = formatCertificateNumber(certificateNo);
+        el.certificateBody.textContent = `あなたは予防救急クイズ「${modeLabel}」を最後まで終え、予防救急に関する知識を学習したことをここに証します。`;
+        el.certificateDate.textContent = `${formatDate(new Date())}　東大阪市消防局`;
+        el.finishScore.textContent = `得点 ${score} / ${total}`;
+        el.finishRate.textContent = `正答率 ${rate}%`;
         el.finishRank.textContent = rank;
         el.finishMessage.textContent = message;
         updateStatus();
@@ -2328,13 +2577,11 @@ window.QUIZ_QUESTIONS = [
         button.addEventListener("click", () => startGame(button.dataset.mode));
       });
       el.nextButton.addEventListener("click", next);
+      el.printCertificate.addEventListener("click", () => window.print());
       el.retrySame.addEventListener("click", () => startGame(currentMode));
       el.backHome.addEventListener("click", home);
-      el.resetParticipants.addEventListener("click", () => {
-        if (window.confirm("累計参加人数を0人に戻しますか。")) writeCount(0);
-      });
 
-      writeCount(readCount());
+      writeParticipantCount(readStoredCount(PARTICIPANT_STORAGE_KEY));
       el.sideTotal.textContent = `${questions.length || 50}問`;
     })();
   </script>
