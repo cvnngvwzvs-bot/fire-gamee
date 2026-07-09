@@ -187,6 +187,11 @@
       font-size: 1.18rem;
     }
 
+    .stat strong.small-value {
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
     .main {
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -207,6 +212,37 @@
 
     .progress-wrap {
       min-width: 0;
+    }
+
+    .mission-panel {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 12px 14px;
+      border: 1px solid #cbd9e8;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(7, 39, 71, 0.06);
+    }
+
+    .mission-label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .mission-text {
+      color: var(--blue-deep);
+      font-weight: 800;
+      line-height: 1.55;
     }
 
     .progress-meta {
@@ -232,6 +268,57 @@
       height: 100%;
       background: linear-gradient(90deg, var(--red), var(--yellow));
       transition: width 240ms ease;
+    }
+
+    .safety-panel {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .safety-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .safety-track {
+      height: 14px;
+      border-radius: 8px;
+      background: #dbe6f1;
+      overflow: hidden;
+    }
+
+    .safety-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #12805c, #37b47e);
+      transition: width 240ms ease;
+    }
+
+    .safety-message {
+      min-height: 1.35em;
+      padding: 8px 10px;
+      border: 1px solid rgba(18, 128, 92, 0.18);
+      border-radius: 8px;
+      background: #eefaf4;
+      color: #075a43;
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .safety-message:empty {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
     }
 
     .score-pill {
@@ -284,6 +371,21 @@
       line-height: 1.7;
     }
 
+    .start-goal {
+      width: fit-content;
+      max-width: 100%;
+      padding: 10px 13px;
+      border: 1px solid rgba(7, 94, 168, 0.18);
+      border-left: 6px solid var(--yellow);
+      border-radius: 8px;
+      background: #fff9df;
+      color: var(--blue-deep);
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
     .mode-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -307,7 +409,7 @@
     .mode-btn {
       position: relative;
       min-height: 128px;
-      padding: 18px;
+      padding: 18px 78px 24px 18px;
       background: var(--blue);
       color: #fff;
       box-shadow: 0 12px 26px rgba(7, 94, 168, 0.24);
@@ -333,12 +435,14 @@
     .mode-btn::after {
       content: attr(data-count);
       position: absolute;
-      right: 12px;
-      bottom: 8px;
+      right: 14px;
+      bottom: 10px;
       color: rgba(255, 255, 255, 0.16);
-      font-size: 3.5rem;
+      font-size: clamp(2.35rem, 6vw, 3rem);
       font-weight: 900;
       line-height: 1;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .mode-btn:hover,
@@ -399,6 +503,22 @@
       margin-left: auto;
     }
 
+    .combo-banner {
+      display: none;
+      padding: 10px 12px;
+      border: 2px solid #d7b44a;
+      border-radius: 8px;
+      background: #fff8d9;
+      color: #694e00;
+      font-weight: 800;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .combo-banner.show {
+      display: block;
+    }
+
     .category {
       display: inline-flex;
       align-items: center;
@@ -407,7 +527,8 @@
       border-radius: 8px;
       background: #eaf3fd;
       color: var(--blue-deep);
-      font-weight: 900;
+      font-weight: 800;
+      line-height: 1.35;
     }
 
     .question-no {
@@ -418,16 +539,19 @@
       border-radius: 8px;
       background: #fff4c7;
       color: #694e00;
-      font-weight: 900;
+      font-weight: 800;
+      line-height: 1.35;
     }
 
     .question-text {
       margin: 0;
       font-size: 1.78rem;
-      line-height: 1.38;
+      font-weight: 800;
+      line-height: 1.45;
       min-height: 4.9em;
       display: flex;
       align-items: center;
+      overflow-wrap: anywhere;
     }
 
     .answer-grid {
@@ -464,13 +588,13 @@
       border-radius: 8px;
       background: #e8eef5;
       color: var(--blue-deep);
-      font-weight: 900;
+      font-weight: 800;
       font-size: 1.15rem;
     }
 
     .answer-text {
-      font-weight: 800;
-      line-height: 1.45;
+      font-weight: 700;
+      line-height: 1.58;
       overflow-wrap: anywhere;
     }
 
@@ -536,13 +660,16 @@
     .feedback h3 {
       margin: 0 0 6px;
       font-size: 1.32rem;
+      line-height: 1.35;
+      color: var(--blue-deep);
     }
 
     .feedback p {
       margin: 0;
-      color: var(--muted);
+      color: #334b65;
       font-weight: 700;
-      line-height: 1.6;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
     }
 
     .action-btn {
@@ -551,7 +678,8 @@
       padding: 12px 18px;
       background: var(--red);
       color: #fff;
-      font-weight: 900;
+      font-weight: 800;
+      line-height: 1.35;
       box-shadow: 0 10px 22px rgba(220, 37, 55, 0.22);
     }
 
@@ -561,6 +689,80 @@
       gap: 20px;
       padding: 34px;
       text-align: center;
+    }
+
+    .summary-card {
+      display: grid;
+      gap: 18px;
+      width: min(760px, 100%);
+      padding: 24px;
+      border: 2px solid #cbd9e8;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 40px rgba(7, 39, 71, 0.12);
+      text-align: left;
+    }
+
+    .summary-card h2 {
+      margin: 0;
+      color: var(--blue-deep);
+      font-size: 1.8rem;
+      line-height: 1.25;
+    }
+
+    .summary-card p {
+      margin: 0;
+      max-width: none;
+      line-height: 1.75;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .summary-item {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7fbff;
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--ink);
+      font-size: 1.18rem;
+      font-weight: 800;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-rank {
+      grid-column: span 2;
+    }
+
+    .summary-title {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .record-line {
+      padding: 12px;
+      border-radius: 8px;
+      background: #eef7ff;
+      color: var(--blue-deep);
+      font-weight: 900;
+      line-height: 1.6;
     }
 
     .certificate {
@@ -736,54 +938,6 @@
       line-height: 1.2;
     }
 
-    .certificate-corner {
-      position: absolute;
-      width: 48px;
-      height: 48px;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .certificate-corner::before,
-    .certificate-corner::after {
-      content: "";
-      position: absolute;
-      background: #c7a046;
-    }
-
-    .certificate-corner::before {
-      width: 32px;
-      height: 3px;
-    }
-
-    .certificate-corner::after {
-      width: 3px;
-      height: 32px;
-    }
-
-    .corner-tl {
-      top: 20px;
-      left: 20px;
-    }
-
-    .corner-tr {
-      top: 20px;
-      right: 20px;
-      transform: scaleX(-1);
-    }
-
-    .corner-bl {
-      bottom: 20px;
-      left: 20px;
-      transform: scaleY(-1);
-    }
-
-    .corner-br {
-      right: 20px;
-      bottom: 20px;
-      transform: scale(-1);
-    }
-
     .finish-screen h2 {
       margin: 0;
       font-size: 2.2rem;
@@ -865,6 +1019,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .mode-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -930,8 +1088,35 @@
       }
 
       .mode-grid,
-      .answer-grid {
+      .answer-grid,
+      .summary-grid {
         grid-template-columns: 1fr;
+      }
+
+      .mission-panel {
+        padding: 11px;
+      }
+
+      .mission-label {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .mission-text {
+        width: 100%;
+        text-align: center;
+      }
+
+      .summary-card {
+        padding: 18px;
+      }
+
+      .summary-card h2 {
+        font-size: 1.45rem;
+      }
+
+      .summary-rank {
+        grid-column: auto;
       }
 
       .start-copy h2,
@@ -1028,26 +1213,18 @@
         font-size: 1.25rem;
       }
 
-      .certificate-corner {
-        width: 32px;
-        height: 32px;
-      }
-
-      .certificate-corner::before {
-        width: 22px;
-      }
-
-      .certificate-corner::after {
-        height: 22px;
-      }
-
       .question-text {
         font-size: 1.22rem;
         min-height: auto;
       }
 
       .answer-btn {
-        min-height: 78px;
+        min-height: 90px;
+        padding: 16px 14px;
+      }
+
+      .action-btn {
+        min-height: 54px;
       }
 
       .mascot-side {
@@ -1087,6 +1264,8 @@
       .mascot-side,
       .status-row,
       .footer-actions,
+      #resultSummary,
+      #viewCertificate,
       #finishMessage {
         display: none !important;
       }
@@ -1151,11 +1330,27 @@
             <span>ただいまの正解</span>
             <strong id="sideScore">0問</strong>
           </div>
+          <div class="stat">
+            <span>連続正解</span>
+            <strong id="sideCombo">0コンボ</strong>
+          </div>
+          <div class="stat">
+            <span>消防士ランク</span>
+            <strong class="small-value" id="sideRank">見習い救急隊</strong>
+          </div>
+          <div class="stat">
+            <span>最高記録</span>
+            <strong class="small-value" id="sideBest">0問 / 見習い救急隊</strong>
+          </div>
         </div>
       </aside>
 
       <section class="main">
         <div class="status-row">
+          <div class="mission-panel" aria-live="polite">
+            <span class="mission-label" id="missionLabel">任務選択</span>
+            <span class="mission-text" id="missionText">コースを選んで学習を始めましょう</span>
+          </div>
           <div class="progress-wrap">
             <div class="progress-meta">
               <span id="progressText">スタート待ち</span>
@@ -1163,6 +1358,16 @@
             </div>
             <div class="progress" aria-hidden="true">
               <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="safety-panel">
+              <div class="safety-meta">
+                <span>市民の安全ゲージ</span>
+                <span id="safetyValue">0 / 100</span>
+              </div>
+              <div class="safety-track" aria-hidden="true">
+                <div class="safety-fill" id="safetyFill"></div>
+              </div>
+              <div class="safety-message" id="safetyMessage"></div>
             </div>
           </div>
           <div class="score-pill" id="scorePill">0 / 0</div>
@@ -1173,6 +1378,7 @@
             <div class="kicker">4択で学ぶ市民参加型講習</div>
             <h2>病気やけがを防ぐ予防と、いざという時の119番通報</h2>
             <p>予防救急30問、119番通報15問、マスター編50問。コースを選んで学習できます。</p>
+            <p class="start-goal">50問連続正解して、予防救急マスターを目指そう！</p>
           </div>
           <div class="mode-grid">
             <button class="mode-btn" type="button" data-mode="preventive" data-count="30">
@@ -1196,6 +1402,7 @@
             <span class="question-no" id="questionNumber">第1問</span>
             <button class="small-btn" type="button" id="quizHome">はじめに戻る</button>
           </div>
+          <div class="combo-banner" id="comboMessage" aria-live="polite"></div>
           <h2 class="question-text" id="questionText"></h2>
           <div class="answer-grid" id="answerGrid"></div>
           <div class="result-band" id="resultBand" aria-live="polite">
@@ -1209,11 +1416,35 @@
         </section>
 
         <section class="screen finish-screen" id="finishScreen">
-          <div class="certificate" id="certificate">
-            <span class="certificate-corner corner-tl" aria-hidden="true"></span>
-            <span class="certificate-corner corner-tr" aria-hidden="true"></span>
-            <span class="certificate-corner corner-bl" aria-hidden="true"></span>
-            <span class="certificate-corner corner-br" aria-hidden="true"></span>
+          <div class="summary-card" id="resultSummary">
+            <h2>任務完了</h2>
+            <p id="resultMessage">学習おつかれさまでした。</p>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span>正解数</span>
+                <strong id="resultScore">0 / 0</strong>
+              </div>
+              <div class="summary-item">
+                <span>正答率</span>
+                <strong id="resultRate">0%</strong>
+              </div>
+              <div class="summary-item summary-rank">
+                <span>消防士ランク</span>
+                <strong id="resultRank">見習い救急隊</strong>
+              </div>
+              <div class="summary-item">
+                <span>最高コンボ数</span>
+                <strong id="resultCombo">0コンボ</strong>
+              </div>
+              <div class="summary-item summary-rank">
+                <span>称号</span>
+                <strong class="summary-title" id="resultTitle">予防救急チャレンジャー</strong>
+              </div>
+            </div>
+            <div class="record-line" id="recordLine">最高記録 0問 / 見習い救急隊</div>
+            <button class="action-btn" type="button" id="viewCertificate">修了証を見る</button>
+          </div>
+          <div class="certificate hidden" id="certificate">
             <div class="certificate-inner">
               <div class="certificate-no" id="certificateNumber">第0000号</div>
               <div class="certificate-title">
@@ -1240,7 +1471,6 @@
           </div>
           <p id="finishMessage"></p>
           <div class="footer-actions">
-            <button class="action-btn" type="button" id="printCertificate">印刷</button>
             <button class="action-btn" type="button" id="retrySame">もう一度</button>
             <button class="small-btn" type="button" id="backHome">トップへ</button>
           </div>
@@ -2507,25 +2737,46 @@ window.QUIZ_QUESTIONS = [
     (() => {
       const PARTICIPANT_STORAGE_KEY = "higashiosaka_preventive_emergency_participants";
       const CERTIFICATE_STORAGE_KEY = "higashiosaka_preventive_emergency_certificates";
+      const BEST_SCORE_STORAGE_KEY = "higashiosaka_preventive_emergency_best_score";
+      const BEST_RANK_STORAGE_KEY = "higashiosaka_preventive_emergency_best_rank";
+      const BEST_RANK_LEVEL_STORAGE_KEY = "higashiosaka_preventive_emergency_best_rank_level";
       const questions = Array.isArray(window.QUIZ_QUESTIONS) ? window.QUIZ_QUESTIONS : [];
       const MODES = {
-        preventive: { count: 30, label: "予防救急 30問", certificateLabel: "予防救急30問", section: "予防救急" },
-        call119: { count: 15, label: "119番通報 15問", certificateLabel: "119番通報15問", section: "119番通報" },
-        master: { count: 50, label: "マスター編 50問", certificateLabel: "マスター編50問", section: "all" }
+        preventive: { count: 30, label: "予防救急 30問", certificateLabel: "予防救急30問", section: "予防救急", mission: "病気やけがを防げ" },
+        call119: { count: 15, label: "119番通報 15問", certificateLabel: "119番通報15問", section: "119番通報", mission: "正しい119番通報を成功させろ" },
+        master: { count: 50, label: "マスター編 50問", certificateLabel: "マスター編50問", section: "all", mission: "予防救急マスター試験" }
       };
       const el = {
         participantCount: document.getElementById("participantCount"),
         sideTotal: document.getElementById("sideTotal"),
         sideScore: document.getElementById("sideScore"),
+        sideCombo: document.getElementById("sideCombo"),
+        sideRank: document.getElementById("sideRank"),
+        sideBest: document.getElementById("sideBest"),
+        missionLabel: document.getElementById("missionLabel"),
+        missionText: document.getElementById("missionText"),
         progressText: document.getElementById("progressText"),
         modeText: document.getElementById("modeText"),
         progressBar: document.getElementById("progressBar"),
+        safetyValue: document.getElementById("safetyValue"),
+        safetyFill: document.getElementById("safetyFill"),
+        safetyMessage: document.getElementById("safetyMessage"),
         scorePill: document.getElementById("scorePill"),
         startScreen: document.getElementById("startScreen"),
         quizScreen: document.getElementById("quizScreen"),
         finishScreen: document.getElementById("finishScreen"),
+        resultSummary: document.getElementById("resultSummary"),
+        resultMessage: document.getElementById("resultMessage"),
+        resultScore: document.getElementById("resultScore"),
+        resultRate: document.getElementById("resultRate"),
+        resultRank: document.getElementById("resultRank"),
+        resultCombo: document.getElementById("resultCombo"),
+        resultTitle: document.getElementById("resultTitle"),
+        recordLine: document.getElementById("recordLine"),
+        viewCertificate: document.getElementById("viewCertificate"),
         categoryLabel: document.getElementById("categoryLabel"),
         questionNumber: document.getElementById("questionNumber"),
+        comboMessage: document.getElementById("comboMessage"),
         questionText: document.getElementById("questionText"),
         answerGrid: document.getElementById("answerGrid"),
         resultBand: document.getElementById("resultBand"),
@@ -2539,10 +2790,10 @@ window.QUIZ_QUESTIONS = [
         finishRate: document.getElementById("finishRate"),
         finishRank: document.getElementById("finishRank"),
         finishMessage: document.getElementById("finishMessage"),
+        certificate: document.getElementById("certificate"),
         certificateNumber: document.getElementById("certificateNumber"),
         certificateBody: document.getElementById("certificateBody"),
         certificateDate: document.getElementById("certificateDate"),
-        printCertificate: document.getElementById("printCertificate"),
         retrySame: document.getElementById("retrySame"),
         backHome: document.getElementById("backHome")
       };
@@ -2550,6 +2801,10 @@ window.QUIZ_QUESTIONS = [
       let deck = [];
       let index = 0;
       let score = 0;
+      let combo = 0;
+      let maxCombo = 0;
+      let safetyScore = 0;
+      let safetyReached = false;
       let currentMode = "preventive";
       let currentOptions = [];
       let lastCorrectDisplayKey = "";
@@ -2568,6 +2823,20 @@ window.QUIZ_QUESTIONS = [
       const correctTitles = ["正解です", "そのとおりです", "よく確認できています", "大切なポイントです"];
       const incorrectTitles = ["見直しましょう", "ここが確認ポイントです", "もう一歩です", "落ち着いて確認しましょう"];
       const answerLeads = ["答えは", "この場面で大切なのは", "正しい対応は", "確認するポイントは"];
+      const comboMessages = {
+        3: "3問連続正解。いい確認ができています。",
+        5: "5問連続正解。落ち着いて判断できています。",
+        10: "10問連続正解。市民の安全を守る力が高まっています。",
+        15: "15問連続正解。すばらしい集中力です。"
+      };
+      const ranks = [
+        { min: 0, max: 9, label: "見習い救急隊", level: 0 },
+        { min: 10, max: 19, label: "救急隊員", level: 1 },
+        { min: 20, max: 29, label: "救命士", level: 2 },
+        { min: 30, max: 39, label: "指導救命士", level: 3 },
+        { min: 40, max: 49, label: "予防救急リーダー", level: 4 },
+        { min: 50, max: 50, label: "予防救急マスター", level: 5 }
+      ];
 
       function readStoredCount(key) {
         try {
@@ -2582,6 +2851,69 @@ window.QUIZ_QUESTIONS = [
           localStorage.setItem(key, String(value));
         } catch (error) {
           // localStorageが使えない環境では画面上だけ更新します。
+        }
+      }
+
+      function readStoredText(key, fallback = "") {
+        try {
+          return localStorage.getItem(key) || fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function writeStoredText(key, value) {
+        try {
+          localStorage.setItem(key, String(value));
+        } catch (error) {
+          // localStorageが使えない環境では画面上だけ更新します。
+        }
+      }
+
+      function rankForScore(value) {
+        return ranks.find((rank) => value >= rank.min && value <= rank.max) || ranks[0];
+      }
+
+      function calculateSafetyScore() {
+        const total = deck.length || 1;
+        return Math.min(100, Math.round((score / total) * 100));
+      }
+
+      function titleForResult(value, streak, safeValue) {
+        if (value === 50) return "予防救急マスター";
+        if (streak >= 15) return "連続正解の達人";
+        if (safeValue >= 100) return "まちの安全を守る人";
+        if (value >= 30) return "安全確認リーダー";
+        if (value >= 20) return "救急判断サポーター";
+        if (value >= 10) return "落ち着き通報チャレンジャー";
+        return "予防救急チャレンジャー";
+      }
+
+      function updateStoredRecords(rank) {
+        const bestScore = readStoredCount(BEST_SCORE_STORAGE_KEY);
+        const bestRankLevel = readStoredCount(BEST_RANK_LEVEL_STORAGE_KEY);
+        if (score > bestScore) {
+          writeStoredCount(BEST_SCORE_STORAGE_KEY, score);
+        }
+        if (rank.level > bestRankLevel) {
+          writeStoredCount(BEST_RANK_LEVEL_STORAGE_KEY, rank.level);
+          writeStoredText(BEST_RANK_STORAGE_KEY, rank.label);
+        } else if (!readStoredText(BEST_RANK_STORAGE_KEY)) {
+          writeStoredText(BEST_RANK_STORAGE_KEY, ranks[0].label);
+        }
+      }
+
+      function updateBestDisplay() {
+        const bestScore = readStoredCount(BEST_SCORE_STORAGE_KEY);
+        let bestRank = readStoredText(BEST_RANK_STORAGE_KEY, ranks[0].label);
+        const legacyLeaderRank = "指導救命士" + "隊長";
+        if (bestRank === legacyLeaderRank) {
+          bestRank = "予防救急リーダー";
+          writeStoredText(BEST_RANK_STORAGE_KEY, bestRank);
+        }
+        el.sideBest.textContent = `${bestScore}問 / ${bestRank}`;
+        if (el.recordLine) {
+          el.recordLine.textContent = `最高記録 ${bestScore}問 / ${bestRank}`;
         }
       }
 
@@ -2619,6 +2951,16 @@ window.QUIZ_QUESTIONS = [
         [el.startScreen, el.quizScreen, el.finishScreen].forEach((node) => {
           node.classList.toggle("active", node === screen);
         });
+      }
+
+      function scrollElementIntoView(node, options) {
+        if (!node || typeof node.scrollIntoView !== "function") return;
+        const scroll = () => node.scrollIntoView(options);
+        if (typeof requestAnimationFrame === "function") {
+          requestAnimationFrame(scroll);
+        } else {
+          scroll();
+        }
       }
 
       function shuffle(items) {
@@ -2659,12 +3001,25 @@ window.QUIZ_QUESTIONS = [
           : questions.filter((question) => question.section === config.section);
         index = 0;
         score = 0;
+        combo = 0;
+        maxCombo = 0;
+        safetyScore = 0;
+        safetyReached = false;
         lastCorrectDisplayKey = "";
         deck = shuffle(pool).slice(0, Math.min(config.count, pool.length));
         registerParticipantOnce();
         el.sideTotal.textContent = `${deck.length}問`;
         el.sideScore.textContent = "0問";
+        el.sideCombo.textContent = "0コンボ";
+        el.sideRank.textContent = rankForScore(0).label;
+        el.missionLabel.textContent = "任務開始";
+        el.missionText.textContent = config.mission;
         el.modeText.textContent = config.label;
+        el.safetyMessage.textContent = "";
+        el.comboMessage.classList.remove("show");
+        el.comboMessage.textContent = "";
+        el.certificate.classList.add("hidden");
+        el.resultSummary.classList.remove("hidden");
         showScreen(el.quizScreen);
         renderQuestion();
       }
@@ -2680,6 +3035,8 @@ window.QUIZ_QUESTIONS = [
         el.questionNumber.textContent = `第${index + 1}問`;
         el.questionText.textContent = q.question;
         el.resultBand.classList.remove("show");
+        el.comboMessage.classList.remove("show");
+        el.comboMessage.textContent = "";
         el.answerGrid.innerHTML = "";
         currentOptions = shuffledOptionsFor(q);
         currentOptions.forEach((option) => {
@@ -2702,7 +3059,15 @@ window.QUIZ_QUESTIONS = [
         answered = true;
         const q = currentQuestion();
         const isCorrect = key === q.answer;
-        if (isCorrect) score += 1;
+        const previousSafetyScore = safetyScore;
+        if (isCorrect) {
+          score += 1;
+          combo += 1;
+          maxCombo = Math.max(maxCombo, combo);
+        } else {
+          combo = 0;
+        }
+        safetyScore = calculateSafetyScore();
 
         [...el.answerGrid.children].forEach((button) => {
           const buttonKey = button.dataset.key;
@@ -2713,12 +3078,24 @@ window.QUIZ_QUESTIONS = [
         });
 
         const correct = currentOptions.find((option) => option.key === q.answer);
+        const reachedNow = !safetyReached && safetyScore >= 100;
+        safetyReached = safetyReached || safetyScore >= 100;
+        if (comboMessages[combo]) {
+          el.comboMessage.textContent = comboMessages[combo];
+          el.comboMessage.classList.add("show");
+        }
         el.feedbackTitle.textContent = pickPhrase(isCorrect ? correctTitles : incorrectTitles, q);
         el.feedbackText.textContent = `${pickPhrase(answerLeads, q)}「${correct.text}」。${tips[q.category] || tips[q.section] || "予防と通報のポイントを日ごろから確認しましょう。"}`;
         el.illustration.innerHTML = illustrationFor(q.category);
+        el.safetyMessage.textContent = reachedNow
+          ? "まちの安全を守りました！"
+          : isCorrect
+            ? `安全ゲージが${safetyScore - previousSafetyScore}ポイント上がりました`
+            : "答えを確認しました。次へ進みましょう。";
         el.nextButton.textContent = index + 1 >= deck.length ? "結果へ" : "次へ";
         el.resultBand.classList.add("show");
         updateStatus();
+        scrollElementIntoView(el.nextButton, { behavior: "smooth", block: "center" });
       }
 
       function updateStatus() {
@@ -2729,6 +3106,10 @@ window.QUIZ_QUESTIONS = [
         el.progressBar.style.width = `${percent}%`;
         el.scorePill.textContent = `${score} / ${total}`;
         el.sideScore.textContent = `${score}問`;
+        el.sideCombo.textContent = `${combo}コンボ`;
+        el.sideRank.textContent = rankForScore(score).label;
+        el.safetyValue.textContent = `${safetyScore} / 100`;
+        el.safetyFill.style.width = `${safetyScore}%`;
       }
 
       function next() {
@@ -2739,6 +3120,7 @@ window.QUIZ_QUESTIONS = [
         }
         index += 1;
         renderQuestion();
+        scrollElementIntoView(el.quizScreen, { behavior: "smooth", block: "start" });
       }
 
       function finishGame() {
@@ -2747,42 +3129,66 @@ window.QUIZ_QUESTIONS = [
         const certificateNo = issueCertificateNumber();
         const config = MODES[currentMode] || MODES.master;
         const modeLabel = config.certificateLabel;
-        let rank = "予防救急チェック";
-        let message = "大切なのは、迷った時に一人で抱え込まず、早めに相談や119番通報を考えることです。";
-        if (rate >= 90) {
-          rank = "予防救急マスター";
-          message = "日ごろの予防と早めの気づきがしっかり身についています。講習の声かけ役にもぴったりです。";
-        } else if (rate >= 70) {
-          rank = "安全チェック上手";
-          message = "大切なポイントをよく押さえています。家の中の危険な場所も一緒に見直してみましょう。";
-        } else if (rate >= 50) {
-          rank = "もう少しで安心";
-          message = "熱中症、入浴、転倒、窒息の予防をもう一度確認すると、日常で使える力になります。";
-        }
+        const rank = rankForScore(score);
+        const title = titleForResult(score, maxCombo, safetyScore);
+        const message = safetyScore >= 100
+          ? "まちの安全を守りました。学んだポイントを、家庭や地域での声かけに生かしましょう。"
+          : "最後まで学習できました。日ごろの予防と、緊急時の落ち着いた通報を確認しておきましょう。";
+        updateStoredRecords(rank);
+        updateBestDisplay();
+        el.resultMessage.textContent = message;
+        el.resultScore.textContent = `${score} / ${total}`;
+        el.resultRate.textContent = `${rate}%`;
+        el.resultRank.textContent = rank.label;
+        el.resultCombo.textContent = `${maxCombo}コンボ`;
+        el.resultTitle.textContent = title;
         el.certificateNumber.textContent = formatCertificateNumber(certificateNo);
         el.certificateBody.innerHTML = `<span>あなたは「${modeLabel}」を最後まで学習しました。</span><span>日ごろの予防と、緊急時の落ち着いた通報について学習したことを証します。</span>`;
         el.certificateDate.textContent = formatDate(new Date());
         el.finishScore.textContent = `得点 ${score} / ${total}`;
         el.finishRate.textContent = `正答率 ${rate}%`;
-        el.finishRank.textContent = rank;
-        el.finishMessage.textContent = message;
+        el.finishRank.textContent = rank.label;
+        el.finishMessage.textContent = "";
+        el.resultSummary.classList.remove("hidden");
+        el.certificate.classList.add("hidden");
         updateStatus();
         showScreen(el.finishScreen);
+      }
+
+      function showCertificate() {
+        el.certificate.classList.remove("hidden");
+        scrollElementIntoView(el.certificate, { behavior: "smooth", block: "start" });
       }
 
       function home() {
         deck = [];
         index = 0;
         score = 0;
+        combo = 0;
+        maxCombo = 0;
+        safetyScore = 0;
+        safetyReached = false;
         currentOptions = [];
         lastCorrectDisplayKey = "";
         answered = false;
         el.sideTotal.textContent = "50問";
         el.sideScore.textContent = "0問";
+        el.sideCombo.textContent = "0コンボ";
+        el.sideRank.textContent = rankForScore(0).label;
         el.progressText.textContent = "スタート待ち";
         el.modeText.textContent = "モード選択";
+        el.missionLabel.textContent = "任務選択";
+        el.missionText.textContent = "コースを選んで学習を始めましょう";
         el.progressBar.style.width = "0%";
         el.scorePill.textContent = "0 / 0";
+        el.safetyValue.textContent = "0 / 100";
+        el.safetyFill.style.width = "0%";
+        el.safetyMessage.textContent = "";
+        el.comboMessage.classList.remove("show");
+        el.comboMessage.textContent = "";
+        el.certificate.classList.add("hidden");
+        el.resultSummary.classList.remove("hidden");
+        updateBestDisplay();
         showScreen(el.startScreen);
       }
 
@@ -2892,11 +3298,12 @@ window.QUIZ_QUESTIONS = [
       });
       el.nextButton.addEventListener("click", next);
       el.quizHome.addEventListener("click", home);
-      el.printCertificate.addEventListener("click", () => window.print());
+      el.viewCertificate.addEventListener("click", showCertificate);
       el.retrySame.addEventListener("click", () => startGame(currentMode));
       el.backHome.addEventListener("click", home);
 
       initializeParticipantCount();
+      updateBestDisplay();
       el.sideTotal.textContent = `${questions.length || 50}問`;
     })();
   </script>
